@@ -43,27 +43,27 @@ public enum Mods {
     ExtraCPUs(Names.EXTRA_CPUS),
     ExtraTrees(Names.EXTRA_TREES),
     Forestry(Names.FORESTRY),
-    // ForestryApiculture(Names.FORESTRY, forestryModule(Names.FORESTRY_APICULTURE)),
-    // ForestryArboriculture(Names.FORESTRY, forestryModule(Names.FORESTRY_ARBORICULTURE)),
-    // ForestryCharcoal(Names.FORESTRY, forestryModule(Names.FORESTRY_CHARCOAL)),
-    // ForestryCore(Names.FORESTRY, forestryModule(Names.FORESTRY_CORE)),
-    // ForestryEnergy(Names.FORESTRY, forestryModule(Names.FORESTRY_ENERGY)),
-    // ForestryFactory(Names.FORESTRY, forestryModule(Names.FORESTRY_FACTORY)),
-    // ForestryWorktable(Names.FORESTRY, forestryModule(Names.FORESTRY_WORKTABLE)),
-    // ForestryFarming(Names.FORESTRY, forestryModule(Names.FORESTRY_FARMING)),
-    // ForestryClimatology(Names.FORESTRY, forestryModule(Names.FORESTRY_CLIMATOLOGY)),
-    // ForestryGreenhouse(Names.FORESTRY, forestryModule(Names.FORESTRY_GREENHOUSE)),
-    // ForestryFluids(Names.FORESTRY, forestryModule(Names.FORESTRY_FLUIDS)),
-    // ForestryFood(Names.FORESTRY, forestryModule(Names.FORESTRY_FOOD)),
-    // ForestryLepidopterology(Names.FORESTRY, forestryModule(Names.FORESTRY_LEPIDOPTEROLOGY)),
-    // ForestryMail(Names.FORESTRY, forestryModule(Names.FORESTRY_MAIL)),
-    // ForestryCrate(Names.FORESTRY, forestryModule(Names.FORESTRY_CRATE)),
-    // ForestryBackpacks(Names.FORESTRY, forestryModule(Names.FORESTRY_BACKPACKS)),
-    // ForestryDatabase(Names.FORESTRY, forestryModule(Names.FORESTRY_DATABASE)),
-    // ForestrySorting(Names.FORESTRY, forestryModule(Names.FORESTRY_SORTING)),
-    // ForestryBook(Names.FORESTRY, forestryModule(Names.FORESTRY_BOOK)),
-    // ForestryCultivation(Names.FORESTRY, forestryModule(Names.FORESTRY_CULTIVATION)),
-    // ForestryResearch(Names.FORESTRY, forestryModule(Names.FORESTRY_RESEARCH)),
+    ForestryApiculture(Names.FORESTRY, forestryModule(Names.FORESTRY_APICULTURE)),
+    ForestryArboriculture(Names.FORESTRY, forestryModule(Names.FORESTRY_ARBORICULTURE)),
+    ForestryCharcoal(Names.FORESTRY, forestryModule(Names.FORESTRY_CHARCOAL)),
+    ForestryCore(Names.FORESTRY, forestryModule(Names.FORESTRY_CORE)),
+    ForestryEnergy(Names.FORESTRY, forestryModule(Names.FORESTRY_ENERGY)),
+    ForestryFactory(Names.FORESTRY, forestryModule(Names.FORESTRY_FACTORY)),
+    ForestryWorktable(Names.FORESTRY, forestryModule(Names.FORESTRY_WORKTABLE)),
+    ForestryFarming(Names.FORESTRY, forestryModule(Names.FORESTRY_FARMING)),
+    ForestryClimatology(Names.FORESTRY, forestryModule(Names.FORESTRY_CLIMATOLOGY)),
+    ForestryGreenhouse(Names.FORESTRY, forestryModule(Names.FORESTRY_GREENHOUSE)),
+    ForestryFluids(Names.FORESTRY, forestryModule(Names.FORESTRY_FLUIDS)),
+    ForestryFood(Names.FORESTRY, forestryModule(Names.FORESTRY_FOOD)),
+    ForestryLepidopterology(Names.FORESTRY, forestryModule(Names.FORESTRY_LEPIDOPTEROLOGY)),
+    ForestryMail(Names.FORESTRY, forestryModule(Names.FORESTRY_MAIL)),
+    ForestryCrate(Names.FORESTRY, forestryModule(Names.FORESTRY_CRATE)),
+    ForestryBackpacks(Names.FORESTRY, forestryModule(Names.FORESTRY_BACKPACKS)),
+    ForestryDatabase(Names.FORESTRY, forestryModule(Names.FORESTRY_DATABASE)),
+    ForestrySorting(Names.FORESTRY, forestryModule(Names.FORESTRY_SORTING)),
+    ForestryBook(Names.FORESTRY, forestryModule(Names.FORESTRY_BOOK)),
+    ForestryCultivation(Names.FORESTRY, forestryModule(Names.FORESTRY_CULTIVATION)),
+    ForestryResearch(Names.FORESTRY, forestryModule(Names.FORESTRY_RESEARCH)),
     GalacticraftCore(Names.GALACTICRAFT_CORE),
     Genetics(Names.GENETICS),
     Gendustry(Names.GENDUSTRY),
@@ -296,11 +296,11 @@ public enum Mods {
     }
 
     /** Test if a specific Forestry module is enabled. */
-    // private static Function<Mods, Boolean> forestryModule(String moduleID) {
-    // if (Forestry.isModLoaded()) {
-    // return mod -> forestry.modules.ModuleHelper.isEnabled(moduleID);
-    // } else {
-    // return $ -> false;
-    // }
-    // }
+    private static Function<Mods, Boolean> forestryModule(String moduleID) {
+        if (Forestry.isModLoaded()) {
+            return mod -> forestry.modules.ModuleHelper.isEnabled(moduleID);
+        } else {
+            return $ -> false;
+        }
+    }
 }
