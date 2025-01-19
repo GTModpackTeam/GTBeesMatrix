@@ -11,7 +11,7 @@ public interface IModuleManager {
     }
 
     default boolean isModuleEnabled(String moduleID) {
-        return isModuleEnabled(ModUtility.id(moduleID));
+        return isModuleEnabled(ModUtility.gtbm(moduleID));
     }
 
     boolean isModuleEnabled(ResourceLocation id);

@@ -15,6 +15,6 @@ public abstract class BaseModule implements IModule {
     @NotNull
     @Override
     public Set<ResourceLocation> getDependencyUids() {
-        return Collections.singleton(ModUtility.id(Modules.MODULE_CORE));
+        return Collections.singleton(ModUtility.gtbm(Modules.MODULE_CORE));
     }
 }

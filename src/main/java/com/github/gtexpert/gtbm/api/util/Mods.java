@@ -19,6 +19,10 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import gregtech.api.GTValues;
+
+import com.github.gtexpert.gtbm.api.ModValues;
+
 public enum Mods {
 
     AEAdditions(Names.AE_ADDITIONS),
@@ -70,8 +74,12 @@ public enum Mods {
     GregicalityMultiblocks(Names.GREGICALITY_MULTIBLOCKS),
     GregTech(Names.GREGTECH),
     GregTechFoodOption(Names.GREGTECH_FOOD_OPTION),
+    GregTechExpertCore(Names.GREGTECH_EXPERT_CORE),
+    GregTechWoodProcessing(Names.GREGTECH_WOOD_PROCESSING),
+    GregTechBeesMatrix(ModValues.MODID),
     GroovyScript(Names.GROOVY_SCRIPT),
     HWYLA(Names.HWYLA),
+    ImplosionNoBomb(Names.IMPLOSION_NO_BOMB),
     InventoryTweaks(Names.INVENTORY_TWEAKS),
     JourneyMap(Names.JOURNEY_MAP),
     JustEnoughItems(Names.JUST_ENOUGH_ITEMS),
@@ -162,10 +170,13 @@ public enum Mods {
         public static final String GENETICS = "genetics";
         public static final String GENDUSTRY = "gendustry";
         public static final String GREGICALITY_MULTIBLOCKS = "gcym";
-        public static final String GREGTECH = "gregtech";
+        public static final String GREGTECH = GTValues.MODID;
         public static final String GREGTECH_FOOD_OPTION = "gregtechfoodoption";
+        public static final String GREGTECH_EXPERT_CORE = "gtexpert";
+        public static final String GREGTECH_WOOD_PROCESSING = "gtwp";
         public static final String GROOVY_SCRIPT = "groovyscript";
         public static final String HWYLA = "hwyla";
+        public static final String IMPLOSION_NO_BOMB = "inb";
         public static final String INVENTORY_TWEAKS = "inventorytweaks";
         public static final String JOURNEY_MAP = "journeymap";
         public static final String JUST_ENOUGH_ITEMS = "jei";

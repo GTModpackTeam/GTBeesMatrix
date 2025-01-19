@@ -15,7 +15,7 @@ import com.github.gtexpert.gtbm.module.Modules;
 public class GTBMIntegrationSubmodule extends BaseModule {
 
     private static final Set<ResourceLocation> DEPENDENCY_UID = Collections.singleton(
-            ModUtility.id(Modules.MODULE_INTEGRATION));
+            ModUtility.gtbm(Modules.MODULE_INTEGRATION));
 
     @NotNull
     @Override

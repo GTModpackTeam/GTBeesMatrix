@@ -1,5 +1,11 @@
 package com.github.gtexpert.gtbm;
 
+import com.github.gtexpert.gtbm.api.ModValues;
+
+import com.github.gtexpert.gtbm.api.util.Mods;
+
+import gregtech.GTInternalTags;
+
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;
 import net.minecraft.item.crafting.IRecipe;
@@ -15,11 +21,18 @@ import com.github.gtexpert.gtbm.api.util.ModLog;
 import com.github.gtexpert.gtbm.module.ModuleManager;
 import com.github.gtexpert.gtbm.module.Modules;
 
-@Mod(
-     modid = Tags.MODID,
-     name = Tags.MODNAME,
+@Mod(modid = ModValues.MODID,
+     name = ModValues.MODNAME,
+     acceptedMinecraftVersions = "[1.12.2,1.13)",
      version = Tags.VERSION,
-     dependencies = "")
+     updateJSON = "",
+     dependencies = GTInternalTags.DEP_VERSION_STRING + "after:" + Mods.Names.MIXINBOOTER + ";" +
+             "after:" + Mods.Names.GREGICALITY_MULTIBLOCKS + ";" +
+             "after:" + Mods.Names.THAUMCRAFT + ";" + "after:" + Mods.Names.FORESTRY + ";" +
+             "after:" + Mods.Names.GENDUSTRY + ";" + "after:" + Mods.Names.GENETICS + ";" +
+             "after:" + Mods.Names.BOTANY + ";" + "after:" + Mods.Names.EXTRA_BEES + ";" +
+             "after:" + Mods.Names.EXTRA_TREES + ";")
+@Mod.EventBusSubscriber(modid = ModValues.MODID)
 public class GTBMMod {
 
     private ModuleManager moduleManager;

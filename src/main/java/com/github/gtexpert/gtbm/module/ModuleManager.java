@@ -39,7 +39,7 @@ public class ModuleManager implements IModuleManager {
     private IModuleContainer currentContainer;
 
     private ModuleStage currentStage = ModuleStage.C_SETUP;
-    private final Logger logger = LogManager.getLogger("GTExpert Module Loader");
+    private final Logger logger = LogManager.getLogger("GTBeesMatrix Module Loader");
     private Configuration config;
 
     private ModuleManager() {}
@@ -276,7 +276,7 @@ public class ModuleManager implements IModuleManager {
         Configuration config = getConfiguration();
         config.load();
         config.addCustomCategoryComment(MODULE_CFG_CATEGORY_NAME,
-                "Module configuration file. Can individually enable/disable modules from GTExpert and its addons");
+                "Module configuration file. Can individually enable/disable modules from GTBeesMatrix and its addons");
 
         for (IModuleContainer container : containers.values()) {
             String containerID = container.getID();
