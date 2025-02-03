@@ -1,6 +1,16 @@
 package com.github.gtexpert.gtbm.core;
 
+import com.github.gtexpert.gtbm.loaders.recipe.CEuOverrideRecipe;
+
+import gregtech.api.unification.OreDictUnifier;
+
+import gregtech.common.blocks.MetaBlocks;
+
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.crafting.IRecipe;
+import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.common.SidedProxy;
+import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 
 import org.apache.logging.log4j.LogManager;
@@ -38,5 +48,10 @@ public class CoreModule implements IModule {
         proxy.preInit(event);
 
         logger.info("Hello World!");
+    }
+
+    @Override
+    public void registerRecipesLowest(RegistryEvent.Register<IRecipe> event) {
+        CEuOverrideRecipe.init();
     }
 }
