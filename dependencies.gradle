@@ -77,4 +77,10 @@ dependencies {
             runtimeOnlyNonPublishable rfg.deobf("curse.maven:binnies-mods-patched-899182:5492997") // Binnie's Mods Patched 2.5.1.212
         }
     }
+
+    // Debug GCYM
+    compileOnly rfg.deobf("curse.maven:gregicality-multiblocks-564858:5619513") // GCYM 1.2.11
+    if (project.debug_all.toBoolean() || project.debug_gcym.toBoolean()) {
+        runtimeOnlyNonPublishable rfg.deobf("curse.maven:gregicality-multiblocks-564858:5619513")
+    }
 }
