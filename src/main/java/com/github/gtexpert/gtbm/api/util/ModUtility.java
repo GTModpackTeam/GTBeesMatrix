@@ -1,9 +1,9 @@
 package com.github.gtexpert.gtbm.api.util;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.Random;
-
-import com.github.gtexpert.gtbm.api.ModValues;
 
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -17,13 +17,18 @@ import org.jetbrains.annotations.NotNull;
 
 import gregtech.api.GTValues;
 import gregtech.api.items.metaitem.MetaItem;
+import gregtech.api.recipes.ModHandler;
 import gregtech.api.unification.OreDictUnifier;
 import gregtech.api.unification.material.Material;
 import gregtech.api.unification.stack.ItemMaterialInfo;
 import gregtech.api.unification.stack.MaterialStack;
 import gregtech.common.items.MetaItems;
 
+import com.github.gtexpert.gtbm.api.ModValues;
+
 public class ModUtility {
+
+    public static List<ItemStack> disabledItems = new ArrayList<>();
 
     public static @NotNull ItemStack getModItem(String modID, String itemName) {
         return GameRegistry.makeItemStack(modID + ":" + itemName, 0, 1, null);
@@ -294,5 +299,10 @@ public class ModUtility {
 
     public static void registerOre(ItemStack itemStack, ItemMaterialInfo materialInfo) {
         OreDictUnifier.registerOre(itemStack, materialInfo);
+    }
+
+    public static void removeRecipeWithTooltip(ItemStack stack) {
+        disabledItems.add(stack);
+        ModHandler.removeRecipeByOutput(stack);
     }
 }
