@@ -17,7 +17,8 @@ import forestry.api.recipes.RecipeManagers;
 public class BotanyItemsRecipe {
 
     public static void init() {
-        Enum<ForestryUtility.recipeMode> recipeMode = ForestryUtility.recipeMode.safeValueOf(ForestryConfigHolder.gameMode);
+        Enum<ForestryUtility.recipeMode> recipeMode = ForestryUtility.recipeMode
+                .safeValueOf(ForestryConfigHolder.gameMode);
 
         // Botanist Database
         ModHandler.addShapelessNBTClearingRecipe("botanist_database_nbt",

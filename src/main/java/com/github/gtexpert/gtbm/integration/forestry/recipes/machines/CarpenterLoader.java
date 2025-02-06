@@ -46,7 +46,8 @@ public class CarpenterLoader {
     }
 
     public static void initMode() {
-        Enum<ForestryUtility.recipeMode> recipeMode = ForestryUtility.recipeMode.safeValueOf(ForestryConfigHolder.gameMode);
+        Enum<ForestryUtility.recipeMode> recipeMode = ForestryUtility.recipeMode
+                .safeValueOf(ForestryConfigHolder.gameMode);
 
         if (recipeMode == ForestryUtility.recipeMode.NORMAL) {
             CoreNormal();

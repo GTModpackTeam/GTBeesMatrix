@@ -25,7 +25,8 @@ import forestry.api.recipes.RecipeManagers;
 public class GeneticsItemsRecipe {
 
     public static void init() {
-        Enum<ForestryUtility.recipeMode> recipeMode = ForestryUtility.recipeMode.safeValueOf(ForestryConfigHolder.gameMode);
+        Enum<ForestryUtility.recipeMode> recipeMode = ForestryUtility.recipeMode
+                .safeValueOf(ForestryConfigHolder.gameMode);
 
         // Gene Database
         ModHandler.addShapelessNBTClearingRecipe("gene_database_nbt",

@@ -1,9 +1,9 @@
 package com.github.gtexpert.gtbm.loaders.recipe;
 
+import static gregtech.api.unification.ore.OrePrefix.*;
+
 import gregtech.api.recipes.RecipeMaps;
 import gregtech.api.unification.material.Materials;
-
-import static gregtech.api.unification.ore.OrePrefix.*;
 
 public class CEuOverrideRecipe {
 

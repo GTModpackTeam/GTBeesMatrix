@@ -1,6 +1,5 @@
 package com.github.gtexpert.gtbm.api.gui;
 
-import gregtech.api.gui.resources.SteamTexture;
 import gregtech.api.gui.resources.TextureArea;
 
 public class GTBMGuiTextures {

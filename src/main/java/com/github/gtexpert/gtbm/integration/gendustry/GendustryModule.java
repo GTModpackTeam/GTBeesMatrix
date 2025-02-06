@@ -14,11 +14,11 @@ import com.github.gtexpert.gtbm.integration.gendustry.recipes.GendustryItemsReci
 import com.github.gtexpert.gtbm.module.Modules;
 
 @TModule(
-           moduleID = Modules.MODULE_GENDUSTRY,
-           containerID = ModValues.MODID,
-           modDependencies = { Mods.Names.FORESTRY, Mods.Names.GENDUSTRY },
-           name = "GTBeesMatrix Gendustry For Minecraft Integration",
-           description = "Gendustry Integration Module")
+         moduleID = Modules.MODULE_GENDUSTRY,
+         containerID = ModValues.MODID,
+         modDependencies = { Mods.Names.FORESTRY, Mods.Names.GENDUSTRY },
+         name = "GTBeesMatrix Gendustry For Minecraft Integration",
+         description = "Gendustry Integration Module")
 public class GendustryModule extends GTBMIntegrationSubmodule {
 
     @Override

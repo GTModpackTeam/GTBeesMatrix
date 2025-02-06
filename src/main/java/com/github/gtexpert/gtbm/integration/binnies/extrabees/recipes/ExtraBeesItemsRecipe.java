@@ -17,7 +17,8 @@ import forestry.api.recipes.RecipeManagers;
 public class ExtraBeesItemsRecipe {
 
     public static void init() {
-        Enum<ForestryUtility.recipeMode> recipeMode = ForestryUtility.recipeMode.safeValueOf(ForestryConfigHolder.gameMode);
+        Enum<ForestryUtility.recipeMode> recipeMode = ForestryUtility.recipeMode
+                .safeValueOf(ForestryConfigHolder.gameMode);
 
         // Apiarist Database
         ModHandler.addShapelessNBTClearingRecipe("apiarist_database_nbt",

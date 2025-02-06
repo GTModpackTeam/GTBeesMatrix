@@ -2,8 +2,6 @@ package com.github.gtexpert.gtbm.common.metatileentities;
 
 import java.util.function.Function;
 
-import com.github.gtexpert.gtbm.api.gui.GTBMGuiTextures;
-
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ResourceLocation;
 
@@ -17,12 +15,14 @@ import gregtech.api.metatileentity.interfaces.IGregTechTileEntity;
 import gregtech.api.recipes.RecipeMap;
 import gregtech.client.renderer.ICubeRenderer;
 
+import com.github.gtexpert.gtbm.api.gui.GTBMGuiTextures;
+
 public class GTBMSimpleMachineMetaTileEntity extends SimpleMachineMetaTileEntity {
 
     private static final int FONT_HEIGHT = 9; // Minecraft's FontRenderer FONT_HEIGHT value
 
     public GTBMSimpleMachineMetaTileEntity(ResourceLocation metaTileEntityId, RecipeMap<?> recipeMap,
-                                          ICubeRenderer renderer, int tier, boolean hasFrontFacing) {
+                                           ICubeRenderer renderer, int tier, boolean hasFrontFacing) {
         super(metaTileEntityId, recipeMap, renderer, tier, hasFrontFacing);
     }
 
@@ -63,26 +63,27 @@ public class GTBMSimpleMachineMetaTileEntity extends SimpleMachineMetaTileEntity
         if (exportItems.getSlots() > 0) {
             builder.widget(new ToggleButtonWidget(leftButtonStartX, 62 + yOffset, 18, 18,
                     GuiTextures.BUTTON_ITEM_OUTPUT, this::isAutoOutputItems, this::setAutoOutputItems)
-                    .setTooltipText("gregtech.gui.item_auto_output.tooltip")
-                    .shouldUseBaseBackground());
+                            .setTooltipText("gregtech.gui.item_auto_output.tooltip")
+                            .shouldUseBaseBackground());
             leftButtonStartX += 18;
         }
         if (exportFluids.getTanks() > 0) {
             builder.widget(new ToggleButtonWidget(leftButtonStartX, 62 + yOffset, 18, 18,
                     GuiTextures.BUTTON_FLUID_OUTPUT, this::isAutoOutputFluids, this::setAutoOutputFluids)
-                    .setTooltipText("gregtech.gui.fluid_auto_output.tooltip")
-                    .shouldUseBaseBackground());
+                            .setTooltipText("gregtech.gui.fluid_auto_output.tooltip")
+                            .shouldUseBaseBackground());
             leftButtonStartX += 18;
         }
 
         builder.widget(new CycleButtonWidget(leftButtonStartX, 62 + yOffset, 18, 18,
                 workable.getAvailableOverclockingTiers(), workable::getOverclockTier, workable::setOverclockTier)
-                .setTooltipHoverString("gregtech.gui.overclock.description")
-                .setButtonTexture(GuiTextures.BUTTON_OVERCLOCK));
+                        .setTooltipHoverString("gregtech.gui.overclock.description")
+                        .setButtonTexture(GuiTextures.BUTTON_OVERCLOCK));
 
         if (exportItems.getSlots() + exportFluids.getTanks() <= 9) {
             ImageWidget logo = new ImageWidget(152, 63 + yOffset, 17, 17,
-                    GTValues.XMAS.get() ? GTBMGuiTextures.GTBM_LOGO_XMAS : GTBMGuiTextures.GTBM_LOGO).setIgnoreColor(true);
+                    GTValues.XMAS.get() ? GTBMGuiTextures.GTBM_LOGO_XMAS : GTBMGuiTextures.GTBM_LOGO)
+                            .setIgnoreColor(true);
 
             if (this.circuitInventory != null) {
                 SlotWidget circuitSlot = new GhostCircuitSlotWidget(this.circuitInventory, 0, 124, 62 + yOffset)

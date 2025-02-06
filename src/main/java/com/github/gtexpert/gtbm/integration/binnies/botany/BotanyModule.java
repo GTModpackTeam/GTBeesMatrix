@@ -12,11 +12,11 @@ import com.github.gtexpert.gtbm.integration.binnies.botany.recipes.BotanyItemsRe
 import com.github.gtexpert.gtbm.module.Modules;
 
 @TModule(
-           moduleID = Modules.MODULE_BOTANY,
-           containerID = ModValues.MODID,
-           modDependencies = { Mods.Names.FORESTRY, Mods.Names.BOTANY },
-           name = "GTBeesMatrix Botany(Binnie's Mods) Integration",
-           description = "Botany(Binnie's Mods) Integration Module")
+         moduleID = Modules.MODULE_BOTANY,
+         containerID = ModValues.MODID,
+         modDependencies = { Mods.Names.FORESTRY, Mods.Names.BOTANY },
+         name = "GTBeesMatrix Botany(Binnie's Mods) Integration",
+         description = "Botany(Binnie's Mods) Integration Module")
 public class BotanyModule extends GTBMIntegrationSubmodule {
 
     @Override

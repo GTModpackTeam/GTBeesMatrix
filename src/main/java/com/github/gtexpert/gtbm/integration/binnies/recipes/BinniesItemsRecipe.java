@@ -12,7 +12,8 @@ import forestry.api.recipes.RecipeManagers;
 public class BinniesItemsRecipe {
 
     public static void init() {
-        Enum<ForestryUtility.recipeMode> recipeMode = ForestryUtility.recipeMode.safeValueOf(ForestryConfigHolder.gameMode);
+        Enum<ForestryUtility.recipeMode> recipeMode = ForestryUtility.recipeMode
+                .safeValueOf(ForestryConfigHolder.gameMode);
 
         if (recipeMode == ForestryUtility.recipeMode.HARD) {
             // Registry

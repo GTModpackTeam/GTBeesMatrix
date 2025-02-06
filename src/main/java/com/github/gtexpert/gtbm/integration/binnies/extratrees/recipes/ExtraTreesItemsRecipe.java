@@ -17,7 +17,8 @@ import forestry.api.recipes.RecipeManagers;
 public class ExtraTreesItemsRecipe {
 
     public static void init() {
-        Enum<ForestryUtility.recipeMode> recipeMode = ForestryUtility.recipeMode.safeValueOf(ForestryConfigHolder.gameMode);
+        Enum<ForestryUtility.recipeMode> recipeMode = ForestryUtility.recipeMode
+                .safeValueOf(ForestryConfigHolder.gameMode);
 
         // Arborist Database
         ModHandler.addShapelessNBTClearingRecipe("arborist_database_nbt",

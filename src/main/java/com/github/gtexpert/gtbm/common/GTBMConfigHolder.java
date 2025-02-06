@@ -1,8 +1,8 @@
 package com.github.gtexpert.gtbm.common;
 
-import com.github.gtexpert.gtbm.api.ModValues;
-
 import net.minecraftforge.common.config.Config;
+
+import com.github.gtexpert.gtbm.api.ModValues;
 
 @Config(modid = ModValues.MODID,
         name = ModValues.MODID + "/" + ModValues.MODID,

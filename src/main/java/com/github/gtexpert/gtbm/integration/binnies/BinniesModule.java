@@ -12,12 +12,12 @@ import com.github.gtexpert.gtbm.integration.binnies.recipes.BinniesItemsRecipe;
 import com.github.gtexpert.gtbm.module.Modules;
 
 @TModule(
-           moduleID = Modules.MODULE_BINNIES,
-           containerID = ModValues.MODID,
-           modDependencies = { Mods.Names.FORESTRY, Mods.Names.GENETICS, Mods.Names.BOTANY,
-                   Mods.Names.EXTRA_BEES, Mods.Names.EXTRA_TREES },
-           name = "GTBeesMatrix Binnie's Mods Integration",
-           description = "Binnie's Mods Integration Module")
+         moduleID = Modules.MODULE_BINNIES,
+         containerID = ModValues.MODID,
+         modDependencies = { Mods.Names.FORESTRY, Mods.Names.GENETICS, Mods.Names.BOTANY,
+                 Mods.Names.EXTRA_BEES, Mods.Names.EXTRA_TREES },
+         name = "GTBeesMatrix Binnie's Mods Integration",
+         description = "Binnie's Mods Integration Module")
 public class BinniesModule extends GTBMIntegrationSubmodule {
 
     @Override

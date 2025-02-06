@@ -12,11 +12,11 @@ import com.github.gtexpert.gtbm.integration.binnies.extratrees.recipes.*;
 import com.github.gtexpert.gtbm.module.Modules;
 
 @TModule(
-           moduleID = Modules.MODULE_EXTREES,
-           containerID = ModValues.MODID,
-           modDependencies = { Mods.Names.FORESTRY, Mods.Names.EXTRA_TREES },
-           name = "GTBeesMatrix Extra Trees(Binnie's Mods) Integration",
-           description = "Extra Trees(Binnie's Mods) Integration Module")
+         moduleID = Modules.MODULE_EXTREES,
+         containerID = ModValues.MODID,
+         modDependencies = { Mods.Names.FORESTRY, Mods.Names.EXTRA_TREES },
+         name = "GTBeesMatrix Extra Trees(Binnie's Mods) Integration",
+         description = "Extra Trees(Binnie's Mods) Integration Module")
 public class ExtraTreesModule extends GTBMIntegrationSubmodule {
 
     @Override

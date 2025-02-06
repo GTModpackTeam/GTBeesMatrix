@@ -1,11 +1,5 @@
 package com.github.gtexpert.gtbm;
 
-import com.github.gtexpert.gtbm.api.ModValues;
-
-import com.github.gtexpert.gtbm.api.util.Mods;
-
-import gregtech.GTInternalTags;
-
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;
 import net.minecraft.item.crafting.IRecipe;
@@ -17,7 +11,11 @@ import net.minecraftforge.fml.common.event.*;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
+import gregtech.GTInternalTags;
+
+import com.github.gtexpert.gtbm.api.ModValues;
 import com.github.gtexpert.gtbm.api.util.ModLog;
+import com.github.gtexpert.gtbm.api.util.Mods;
 import com.github.gtexpert.gtbm.module.ModuleManager;
 import com.github.gtexpert.gtbm.module.Modules;
 

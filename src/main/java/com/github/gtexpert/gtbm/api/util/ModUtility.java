@@ -3,8 +3,6 @@ package com.github.gtexpert.gtbm.api.util;
 import java.util.Objects;
 import java.util.Random;
 
-import com.github.gtexpert.gtbm.api.ModValues;
-
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
@@ -22,6 +20,8 @@ import gregtech.api.unification.material.Material;
 import gregtech.api.unification.stack.ItemMaterialInfo;
 import gregtech.api.unification.stack.MaterialStack;
 import gregtech.common.items.MetaItems;
+
+import com.github.gtexpert.gtbm.api.ModValues;
 
 public class ModUtility {
 

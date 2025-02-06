@@ -12,11 +12,11 @@ import com.github.gtexpert.gtbm.integration.binnies.genetics.recipes.GeneticsIte
 import com.github.gtexpert.gtbm.module.Modules;
 
 @TModule(
-           moduleID = Modules.MODULE_GENETICS,
-           containerID = ModValues.MODID,
-           modDependencies = { Mods.Names.FORESTRY, Mods.Names.GENETICS },
-           name = "GTBeesMatrix Genetics(Binnie's Mods) Integration",
-           description = "Genetics(Binnie's Mods) Integration Module")
+         moduleID = Modules.MODULE_GENETICS,
+         containerID = ModValues.MODID,
+         modDependencies = { Mods.Names.FORESTRY, Mods.Names.GENETICS },
+         name = "GTBeesMatrix Genetics(Binnie's Mods) Integration",
+         description = "Genetics(Binnie's Mods) Integration Module")
 public class GeneticsModule extends GTBMIntegrationSubmodule {
 
     @Override
