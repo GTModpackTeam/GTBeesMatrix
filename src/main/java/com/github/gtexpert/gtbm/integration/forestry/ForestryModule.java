@@ -14,11 +14,11 @@ import com.github.gtexpert.gtbm.integration.forestry.recipes.machines.*;
 import com.github.gtexpert.gtbm.module.Modules;
 
 @TModule(
-           moduleID = Modules.MODULE_FORESTRY,
-           containerID = ModValues.MODID,
-           modDependencies = Mods.Names.FORESTRY,
-           name = "GTBeesMatrix Forestry For Minecraft Integration",
-           description = "Forestry For Minecraft Integration Module")
+         moduleID = Modules.MODULE_FORESTRY,
+         containerID = ModValues.MODID,
+         modDependencies = Mods.Names.FORESTRY,
+         name = "GTBeesMatrix Forestry For Minecraft Integration",
+         description = "Forestry For Minecraft Integration Module")
 public class ForestryModule extends GTBMIntegrationSubmodule {
 
     @Override
@@ -27,6 +27,7 @@ public class ForestryModule extends GTBMIntegrationSubmodule {
         FFMItemRecipe.init();
         FFMMaterialsRecipe.init();
         FFMToolRecipe.init();
+        FFMCraftingRecipe.init();
 
         CarpenterLoader.initBase();
         CarpenterLoader.initMode();
