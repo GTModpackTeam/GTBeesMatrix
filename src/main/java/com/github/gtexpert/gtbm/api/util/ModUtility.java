@@ -17,7 +17,6 @@ import org.jetbrains.annotations.NotNull;
 
 import gregtech.api.GTValues;
 import gregtech.api.items.metaitem.MetaItem;
-import gregtech.api.recipes.ModHandler;
 import gregtech.api.unification.OreDictUnifier;
 import gregtech.api.unification.material.Material;
 import gregtech.api.unification.stack.ItemMaterialInfo;
@@ -299,10 +298,5 @@ public class ModUtility {
 
     public static void registerOre(ItemStack itemStack, ItemMaterialInfo materialInfo) {
         OreDictUnifier.registerOre(itemStack, materialInfo);
-    }
-
-    public static void removeRecipeWithTooltip(ItemStack stack) {
-        disabledItems.add(stack);
-        ModHandler.removeRecipeByOutput(stack);
     }
 }
