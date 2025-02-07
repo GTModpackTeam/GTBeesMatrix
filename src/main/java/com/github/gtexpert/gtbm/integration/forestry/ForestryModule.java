@@ -27,6 +27,7 @@ public class ForestryModule extends GTBMIntegrationSubmodule {
         FFMItemRecipe.init();
         FFMMaterialsRecipe.init();
         FFMToolRecipe.init();
+        FFMCraftingRecipe.init();
 
         CarpenterLoader.initBase();
         CarpenterLoader.initMode();

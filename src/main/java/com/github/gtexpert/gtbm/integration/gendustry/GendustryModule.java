@@ -1,5 +1,6 @@
 package com.github.gtexpert.gtbm.integration.gendustry;
 
+import com.github.gtexpert.gtbm.integration.gendustry.recipes.GendustryCraftingRecipe;
 import net.minecraft.block.Block;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
@@ -30,5 +31,6 @@ public class GendustryModule extends GTBMIntegrationSubmodule {
     public void postInit(FMLPostInitializationEvent event) {
         GendustryItemsRecipe.init();
         GendustryBlocksRecipe.init();
+        GendustryCraftingRecipe.init();
     }
 }

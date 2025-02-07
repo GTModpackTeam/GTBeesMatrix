@@ -1,5 +1,7 @@
 package com.github.gtexpert.gtbm.api.util;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.Random;
 
@@ -24,6 +26,8 @@ import gregtech.common.items.MetaItems;
 import com.github.gtexpert.gtbm.api.ModValues;
 
 public class ModUtility {
+
+    public static List<ItemStack> disabledItems = new ArrayList<>();
 
     public static @NotNull ItemStack getModItem(String modID, String itemName) {
         return GameRegistry.makeItemStack(modID + ":" + itemName, 0, 1, null);
