@@ -1,6 +1,5 @@
 package com.github.gtexpert.gtbm.integration.gendustry;
 
-import com.github.gtexpert.gtbm.integration.gendustry.recipes.GendustryCraftingRecipe;
 import net.minecraft.block.Block;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
@@ -11,6 +10,7 @@ import com.github.gtexpert.gtbm.api.util.Mods;
 import com.github.gtexpert.gtbm.integration.GTBMIntegrationSubmodule;
 import com.github.gtexpert.gtbm.integration.gendustry.metatileentities.GendustryMetaTileEntities;
 import com.github.gtexpert.gtbm.integration.gendustry.recipes.GendustryBlocksRecipe;
+import com.github.gtexpert.gtbm.integration.gendustry.recipes.GendustryCraftingRecipe;
 import com.github.gtexpert.gtbm.integration.gendustry.recipes.GendustryItemsRecipe;
 import com.github.gtexpert.gtbm.module.Modules;
 

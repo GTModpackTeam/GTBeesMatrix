@@ -6,12 +6,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Supplier;
 
-import com.github.gtexpert.gtbm.integration.gendustry.GendustryConfigHolder;
 import net.minecraft.item.ItemStack;
 
 import gregtech.api.recipes.ModHandler;
 
 import com.github.gtexpert.gtbm.api.util.Mods;
+import com.github.gtexpert.gtbm.integration.gendustry.GendustryConfigHolder;
 
 public class GendustryCraftingRecipe {
 
