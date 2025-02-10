@@ -83,4 +83,9 @@ dependencies {
     if (project.debug_all.toBoolean() || project.debug_gcym.toBoolean()) {
         runtimeOnlyNonPublishable rfg.deobf("curse.maven:gregicality-multiblocks-564858:5619513")
     }
+
+    // debug GTFO
+    if (project.debug_all.toBoolean() || project.debug_gtfo.toBoolean()) {
+        runtimeOnlyNonPublishable rfg.deobf("curse.maven:gregtech-food-option-477021:5487400") // GTFO 1.11.2.1
+    }
 }

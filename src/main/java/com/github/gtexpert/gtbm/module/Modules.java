@@ -21,6 +21,7 @@ public class Modules implements IModuleContainer {
     public static final String MODULE_EXTREES = "extratrees_integration";
     public static final String MODULE_GENETICS = "genetics_integration";
     public static final String MODULE_TC = "tc_integration";
+    public static final String MODULE_GTFO = "gtfo_integration";
 
     @Override
     public String getID() {
