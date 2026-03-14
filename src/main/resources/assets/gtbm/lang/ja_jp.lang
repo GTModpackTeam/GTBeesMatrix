@@ -1,1 +1,28 @@
 gtbm.tooltip.warn.disabled_item=§l§dこのアイテムは無効化されています!!
+
+# Industrial Apiary
+gtbm.machine.industrial_apiary.lv.name=基本型工業用養蜂箱
+gtbm.machine.industrial_apiary.lv.tooltip=ミツバチ殿様のおな～り～/n§d作者:§f @tier940
+gtbm.machine.industrial_apiary.mv.name=発展型工業用養蜂箱
+gtbm.machine.industrial_apiary.mv.tooltip=ミツバチ殿様のおな～り～/n§d作者:§f @tier940
+gtbm.machine.industrial_apiary.hv.name=発展型工業用養蜂箱 II
+gtbm.machine.industrial_apiary.hv.tooltip=ミツバチ殿様のおな～り～/n§d作者:§f @tier940
+gtbm.machine.industrial_apiary.ev.name=発展型工業用養蜂箱 III
+gtbm.machine.industrial_apiary.ev.tooltip=ミツバチ殿様のおな～り～/n§d作者:§f @tier940
+gtbm.machine.industrial_apiary.iv.name=精鋭型工業用養蜂箱
+gtbm.machine.industrial_apiary.iv.tooltip=ミツバチ殿様のおな～り～/n§d作者:§f @tier940
+gtbm.machine.industrial_apiary.luv.name=精鋭型工業用養蜂箱 II
+gtbm.machine.industrial_apiary.luv.tooltip=ミツバチ殿様のおな～り～/n§d作者:§f @tier940
+gtbm.machine.industrial_apiary.zpm.name=精鋭型工業用養蜂箱 III
+gtbm.machine.industrial_apiary.zpm.tooltip=ミツバチ殿様のおな～り～/n§d作者:§f @tier940
+gtbm.machine.industrial_apiary.uv.name=究極型工業用養蜂箱
+gtbm.machine.industrial_apiary.uv.tooltip=ミツバチ殿様のおな～り～/n§d作者:§f @tier940
+
+# Bee Status Widget
+gtbm.bee.label.energy=消費電力: %s EU/t
+gtbm.bee.label.temperature=気温: %s
+gtbm.bee.label.humidity=湿度: %s
+gtbm.bee.label.production=生産速度: %s
+gtbm.bee.label.flowering=受粉確率: %s
+gtbm.bee.label.lifespan=寿命補正: %s
+gtbm.bee.label.territory=活動範囲: %s

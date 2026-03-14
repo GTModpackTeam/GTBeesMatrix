@@ -1,1 +1,28 @@
 gtbm.tooltip.warn.disabled_item=§l§dThis item is disabled!!
+
+# Industrial Apiary
+gtbm.machine.industrial_apiary.lv.name=Basic Industrial Apiary
+gtbm.machine.industrial_apiary.lv.tooltip=BEES GOES BRRRR/n§dAuthor:§f @tier940
+gtbm.machine.industrial_apiary.mv.name=Advanced Industrial Apiary
+gtbm.machine.industrial_apiary.mv.tooltip=BEES GOES BRRRR/n§dAuthor:§f @tier940
+gtbm.machine.industrial_apiary.hv.name=Advanced Industrial Apiary II
+gtbm.machine.industrial_apiary.hv.tooltip=BEES GOES BRRRR/n§dAuthor:§f @tier940
+gtbm.machine.industrial_apiary.ev.name=Advanced Industrial Apiary III
+gtbm.machine.industrial_apiary.ev.tooltip=BEES GOES BRRRR/n§dAuthor:§f @tier940
+gtbm.machine.industrial_apiary.iv.name=Elite Industrial Apiary
+gtbm.machine.industrial_apiary.iv.tooltip=BEES GOES BRRRR/n§dAuthor:§f @tier940
+gtbm.machine.industrial_apiary.luv.name=Elite Industrial Apiary II
+gtbm.machine.industrial_apiary.luv.tooltip=BEES GOES BRRRR/n§dAuthor:§f @tier940
+gtbm.machine.industrial_apiary.zpm.name=Elite Industrial Apiary III
+gtbm.machine.industrial_apiary.zpm.tooltip=BEES GOES BRRRR/n§dAuthor:§f @tier940
+gtbm.machine.industrial_apiary.uv.name=Ultimate Industrial Apiary
+gtbm.machine.industrial_apiary.uv.tooltip=BEES GOES BRRRR/n§dAuthor:§f @tier940
+
+# Bee Status Widget
+gtbm.bee.label.energy=Energy Required: %s EU/t
+gtbm.bee.label.temperature=Temperature: %s
+gtbm.bee.label.humidity=Humidity: %s
+gtbm.bee.label.production=Production Modifier: %s
+gtbm.bee.label.flowering=Flowering Chance: %s
+gtbm.bee.label.lifespan=Lifespan Modifier: %s
+gtbm.bee.label.territory=Territory: %s

@@ -164,9 +164,9 @@ public class MetaTileEntityIndustrialApiary extends GTBMSimpleMachineMetaTileEnt
 
     // ---- GUI ----
     // Based on Gendustry Industrial Apiary layout, adapted for GT controls.
-    // 176x180: Content(y=18-54) | Controls(y=76) | PlayerInv(y=98)
+    // 176x179: Content(y=18-66) | Controls(y=75) | PlayerInv(y=97)
 
-    private static final int Y_OFFSET = 14;
+    private static final int Y_OFFSET = 13;
 
     @Override
     protected ModularUI createUI(EntityPlayer player) {
@@ -179,23 +179,27 @@ public class MetaTileEntityIndustrialApiary extends GTBMSimpleMachineMetaTileEnt
         // Title
         builder.widget(new LabelWidget(5, 5, getMetaFullName()));
 
-        // Queen slot (x=7, aligned with AutoOutput button)
-        builder.widget(new SlotWidget(importItems, 0, 7, 18, true, true, false)
+        // Queen slot (x=7, aligned with AutoOutput button, shift-clickable)
+        builder.widget(new SlotWidget(importItems, 0, 7, 18, true, true, true)
                 .setBackgroundTexture(GuiTextures.SLOT));
         builder.widget(new ImageWidget(8, 19, 16, 16, GTBMGuiTextures.QUEEN_OVERLAY));
 
-        // Drone slot (y=36, aligned with upgrade and output middle row)
-        builder.widget(new SlotWidget(importItems, 1, 7, 36, true, true, false)
+        // Drone slot (y=36, aligned with upgrade and output middle row, shift-clickable)
+        builder.widget(new SlotWidget(importItems, 1, 7, 36, true, true, true)
                 .setBackgroundTexture(GuiTextures.SLOT));
         builder.widget(new ImageWidget(8, 37, 16, 16, GTBMGuiTextures.DRONE_OVERLAY));
+
+        // Bee status indicator (below bee slots, Gendustry-style error icon + stats tooltip)
+        builder.widget(new com.github.gtexpert.gtbm.integration.forestry.util.WidgetBeeStatus(
+                8, 56, this, getLogic().getBeeRoot(), getModifiers(), getLogic()::getEUPerTick));
 
         // Progress bar (centered above upgrade slots)
         builder.widget(new ProgressWidget(getLogic()::getBeeProgress, 60, 18, 20, 20,
                 GuiTextures.PROGRESS_BAR_ARROW, ProgressWidget.MoveType.HORIZONTAL));
 
-        // Upgrade slots 1x4 (y=36, same row as drone and output middle)
+        // Upgrade slots 1x4 (y=36, same row as drone and output middle, shift-clickable)
         for (int i = 0; i < UPGRADE_SLOT_COUNT; i++) {
-            builder.widget(new SlotWidget(upgradeInventory, i, 34 + i * 18, 36, true, true, false)
+            builder.widget(new SlotWidget(upgradeInventory, i, 34 + i * 18, 36, true, true, true)
                     .setBackgroundTexture(GuiTextures.SLOT));
             builder.widget(new ImageWidget(35 + i * 18, 37, 16, 16, GTBMGuiTextures.UPGRADE_OVERLAY));
         }
@@ -228,7 +232,7 @@ public class MetaTileEntityIndustrialApiary extends GTBMSimpleMachineMetaTileEnt
                         .setButtonTexture(GuiTextures.BUTTON_OVERCLOCK));
 
         // Charger slot
-        builder.widget(new SlotWidget(chargerInventory, 0, 79, 62 + Y_OFFSET, true, true, false)
+        builder.widget(new SlotWidget(chargerInventory, 0, 79, 62 + Y_OFFSET, true, true, true)
                 .setBackgroundTexture(GuiTextures.SLOT, GuiTextures.CHARGER_OVERLAY)
                 .setTooltipText("gregtech.gui.charger_slot.tooltip",
                         GTValues.VNF[getTier()], GTValues.VNF[getTier()]));
