@@ -5,9 +5,9 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import com.google.common.collect.ImmutableMap;
-
 import net.minecraftforge.fml.common.Loader;
+
+import com.google.common.collect.ImmutableMap;
 
 import com.github.gtexpert.gtbm.api.ModValues;
 import com.github.gtexpert.gtbm.api.util.ModLog;
