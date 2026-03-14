@@ -88,13 +88,12 @@ public class FFMBlockRecipe {
             control.setTagCompound(compound);
 
             // == REMOVE ==
-            /*
              ModHandler.removeRecipeByOutput(basic);
              ModHandler.removeRecipeByOutput(gearbox);
              ModHandler.removeRecipeByOutput(hatch);
              ModHandler.removeRecipeByOutput(valve);
              ModHandler.removeRecipeByOutput(control);
-             */
+
 
             // == ADD ==
             // Farm Block
