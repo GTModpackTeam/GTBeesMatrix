@@ -88,12 +88,11 @@ public class FFMBlockRecipe {
             control.setTagCompound(compound);
 
             // == REMOVE ==
-             ModHandler.removeRecipeByOutput(basic);
-             ModHandler.removeRecipeByOutput(gearbox);
-             ModHandler.removeRecipeByOutput(hatch);
-             ModHandler.removeRecipeByOutput(valve);
-             ModHandler.removeRecipeByOutput(control);
-
+            ModHandler.removeRecipeByOutput(basic);
+            ModHandler.removeRecipeByOutput(gearbox);
+            ModHandler.removeRecipeByOutput(hatch);
+            ModHandler.removeRecipeByOutput(valve);
+            ModHandler.removeRecipeByOutput(control);
 
             // == ADD ==
             // Farm Block
@@ -117,7 +116,7 @@ public class FFMBlockRecipe {
                     .input(cableGtSingle, Materials.Tin)
                     .input(gear, Materials.Steel)
                     .inputs(ModuleCore.getItems().tubes.get(EnumElectronTube.GOLD, 4))
-                    .circuitMeta(10)
+                    .circuitMeta(11)
                     .fluidInputs(Materials.Creosote.getFluid(1000))
                     .outputs(GTUtility.copy(2, control))
                     .EUt(30)
@@ -130,7 +129,7 @@ public class FFMBlockRecipe {
                     .input(MetaItems.ELECTRIC_MOTOR_LV)
                     .input(gear, Materials.Steel, 4)
                     .inputs(ModuleCore.getItems().tubes.get(EnumElectronTube.BRONZE, 4))
-                    .circuitMeta(10)
+                    .circuitMeta(12)
                     .fluidInputs(Materials.Creosote.getFluid(1000))
                     .outputs(GTUtility.copy(2, gearbox))
                     .EUt(30)
@@ -145,7 +144,7 @@ public class FFMBlockRecipe {
                     .input(gear, Materials.Steel, 1)
                     .input(ring, Materials.Rubber)
                     .inputs(ModuleCore.getItems().tubes.get(EnumElectronTube.LAPIS, 4))
-                    .circuitMeta(10)
+                    .circuitMeta(13)
                     .fluidInputs(Materials.Creosote.getFluid(1000))
                     .outputs(GTUtility.copy(2, valve))
                     .EUt(30)
@@ -160,7 +159,7 @@ public class FFMBlockRecipe {
                     .input(gear, Materials.Steel)
                     .input(Blocks.HOPPER)
                     .inputs(ModuleCore.getItems().tubes.get(EnumElectronTube.TIN, 4))
-                    .circuitMeta(10)
+                    .circuitMeta(14)
                     .fluidInputs(Materials.Creosote.getFluid(1000))
                     .outputs(GTUtility.copy(2, hatch))
                     .EUt(30)
