@@ -24,7 +24,8 @@ public class GTFOFarmingLoader {
                         new FarmableSapling(new ItemStack(sapling), new ItemStack[0]));
             }
         } catch (ReflectiveOperationException e) {
-            com.github.gtexpert.gtbm.api.util.ModLog.logger.error("Failed to register GTFO saplings with Forestry farm", e);
+            com.github.gtexpert.gtbm.api.util.ModLog.logger.error("Failed to register GTFO saplings with Forestry farm",
+                    e);
         }
     }
 }
