@@ -1,5 +1,5 @@
 # v1.2.0
-- 
+- Add Forestry Multifarm support for GregTech/GTFO saplings and GT fertilizer [#11](https://github.com/GTModpackTeam/GTBeesMatrix/pull/11)
 
 * * *
 
