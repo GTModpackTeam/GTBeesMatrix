@@ -26,3 +26,7 @@ gtbm.bee.label.production=Production Modifier: %s
 gtbm.bee.label.flowering=Flowering Chance: %s
 gtbm.bee.label.lifespan=Lifespan Modifier: %s
 gtbm.bee.label.territory=Territory: %s
+gtbm.bee.label.health=Queen Health: %s
+gtbm.bee.label.cycle=Next Product: %s
+gtbm.bee.label.breeding=Breeding Progress: %s
+gtbm.bee.label.upgrade_note=§o§7Upgrade changes apply from next cycle

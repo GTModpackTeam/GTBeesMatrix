@@ -103,9 +103,35 @@ public class MetaTileEntityIndustrialApiary extends GTBMSimpleMachineMetaTileEnt
 
             @Override
             public boolean isItemValid(int slot, @org.jetbrains.annotations.NotNull ItemStack stack) {
-                return !stack.isEmpty() && stack.getItem() instanceof IApiaryUpgrade;
+                if (stack.isEmpty() || !(stack.getItem() instanceof IApiaryUpgrade)) return false;
+                return getMaxAdditionalUpgrades(stack) >= stack.getCount();
+            }
+
+            @Override
+            public int getSlotLimit(int slot) {
+                return 64;
             }
         };
+    }
+
+    /**
+     * Calculate how many more of this upgrade can be installed.
+     * Same logic as Gendustry's TileApiary.getMaxAdditionalUpgrades.
+     */
+    public int getMaxAdditionalUpgrades(ItemStack stack) {
+        if (stack.isEmpty() || !(stack.getItem() instanceof IApiaryUpgrade)) return 0;
+        IApiaryUpgrade upgrade = (IApiaryUpgrade) stack.getItem();
+        long thisId = upgrade.getStackingId(stack);
+        int existing = 0;
+        for (int i = 0; i < upgradeInventory.getSlots(); i++) {
+            ItemStack slotStack = upgradeInventory.getStackInSlot(i);
+            if (!slotStack.isEmpty() && slotStack.getItem() instanceof IApiaryUpgrade) {
+                if (((IApiaryUpgrade) slotStack.getItem()).getStackingId(slotStack) == thisId) {
+                    existing += slotStack.getCount();
+                }
+            }
+        }
+        return upgrade.getMaxNumber(stack) - existing;
     }
 
     @Override
@@ -174,6 +200,12 @@ public class MetaTileEntityIndustrialApiary extends GTBMSimpleMachineMetaTileEnt
             owner = player.getGameProfile();
         }
 
+        // Force refresh flower cache and error states when GUI is opened
+        IBeekeepingLogic logic = getBeekeepingLogic();
+        if (logic != null && !getWorld().isRemote) {
+            logic.clearCachedValues();
+        }
+
         ModularUI.Builder builder = ModularUI.builder(GuiTextures.BACKGROUND, 176, 166 + Y_OFFSET);
 
         // Title
@@ -191,10 +223,11 @@ public class MetaTileEntityIndustrialApiary extends GTBMSimpleMachineMetaTileEnt
 
         // Bee status indicator (below bee slots, Gendustry-style error icon + stats tooltip)
         builder.widget(new com.github.gtexpert.gtbm.integration.forestry.util.WidgetBeeStatus(
-                8, 56, this, getLogic().getBeeRoot(), getModifiers(), getLogic()::getEUPerTick));
+                8, 56, this, getLogic().getBeeRoot(), getModifiers(),
+                getLogic()::getEUPerTick, getLogic()::getCycleTickCounter));
 
         // Progress bar (centered above upgrade slots)
-        builder.widget(new ProgressWidget(getLogic()::getBeeProgress, 60, 18, 20, 20,
+        builder.widget(new ProgressWidget(getLogic()::getBeeProgress, 60, 16, 20, 20,
                 GuiTextures.PROGRESS_BAR_ARROW, ProgressWidget.MoveType.HORIZONTAL));
 
         // Upgrade slots 1x4 (y=36, same row as drone and output middle, shift-clickable)
@@ -473,36 +506,23 @@ public class MetaTileEntityIndustrialApiary extends GTBMSimpleMachineMetaTileEnt
                     return true;
                 }
             } else if (beeRoot.isMember(remaining, EnumBeeType.DRONE)) {
-                ItemStack droneSlot = getDrone();
-                if (droneSlot.isEmpty()) {
+                if (getDrone().isEmpty()) {
                     setDrone(remaining);
                     return true;
-                } else if (ItemStack.areItemsEqual(droneSlot, remaining) &&
-                        ItemStack.areItemStackTagsEqual(droneSlot, remaining) &&
-                        droneSlot.getCount() + remaining.getCount() <= droneSlot.getMaxStackSize()) {
-                            droneSlot.grow(remaining.getCount());
-                            return true;
-                        }
+                }
+                ItemStack mergeResult = importItems.insertItem(1, remaining, false);
+                if (mergeResult.isEmpty()) {
+                    return true;
+                }
+                remaining = mergeResult;
             }
         }
 
-        // Try to add to output slots
+        // Try to add to output slots using insertItem (properly triggers onContentsChanged)
         for (int i = 0; i < exportItems.getSlots(); i++) {
-            ItemStack slotStack = exportItems.getStackInSlot(i);
-            if (slotStack.isEmpty()) {
-                exportItems.setStackInSlot(i, remaining);
+            remaining = exportItems.insertItem(i, remaining, false);
+            if (remaining.isEmpty()) {
                 return true;
-            }
-            if (ItemStack.areItemsEqual(slotStack, remaining) &&
-                    ItemStack.areItemStackTagsEqual(slotStack, remaining)) {
-                int space = slotStack.getMaxStackSize() - slotStack.getCount();
-                if (space >= remaining.getCount()) {
-                    slotStack.grow(remaining.getCount());
-                    return true;
-                } else if (space > 0) {
-                    slotStack.grow(space);
-                    remaining.shrink(space);
-                }
             }
         }
 

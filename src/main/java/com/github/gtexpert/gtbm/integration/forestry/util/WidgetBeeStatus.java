@@ -39,22 +39,24 @@ public class WidgetBeeStatus extends Widget {
     private final IBeeRoot beeRoot;
     private final ApiaryModifiers modifiers;
     private final IntSupplier euPerTickSupplier;
+    private final IntSupplier cycleTickSupplier;
 
     // Client-side synced data
     private List<String> clientTooltip = new ArrayList<>();
     private List<Short> clientErrorIds = new ArrayList<>();
 
     // Server-side change tracking
-    private int lastTooltipHash = Integer.MIN_VALUE;
     private int lastErrorHash = Integer.MIN_VALUE;
+    private int syncTickCounter;
 
     public WidgetBeeStatus(int x, int y, IBeeHousing housing, IBeeRoot beeRoot, ApiaryModifiers modifiers,
-                           IntSupplier euPerTickSupplier) {
+                           IntSupplier euPerTickSupplier, IntSupplier cycleTickSupplier) {
         super(new Position(x, y), new Size(16, 16));
         this.housing = housing;
         this.beeRoot = beeRoot;
         this.modifiers = modifiers;
         this.euPerTickSupplier = euPerTickSupplier;
+        this.cycleTickSupplier = cycleTickSupplier;
     }
 
     // ---- Server-side: sync ----
@@ -81,10 +83,15 @@ public class WidgetBeeStatus extends Widget {
         }
 
         // Sync tooltip lines
-        List<String> tooltip = buildTooltipLines();
-        int tooltipHash = tooltip.hashCode();
-        if (tooltipHash != lastTooltipHash) {
-            lastTooltipHash = tooltipHash;
+        // When active: sync every second (20 ticks) for smooth countdown
+        // When idle: sync every 2 seconds (40 ticks) to catch changes
+        syncTickCounter++;
+        boolean isActive = housing.getBeekeepingLogic() != null && !housing.getBeeInventory().getQueen().isEmpty();
+        int syncInterval = isActive ? 20 : 40;
+
+        if (syncTickCounter >= syncInterval) {
+            syncTickCounter = 0;
+            List<String> tooltip = buildTooltipLines();
             writeUpdateInfo(SYNC_TOOLTIP, buf -> {
                 buf.writeVarInt(tooltip.size());
                 for (String line : tooltip) {
@@ -112,23 +119,55 @@ public class WidgetBeeStatus extends Widget {
         lines.add("gtbm.bee.label.temperature\t" + temp.getName().toLowerCase());
         lines.add("gtbm.bee.label.humidity\t" + hum.getName().toLowerCase());
 
-        // Bee stats
+        // Bee stats - read actual values from Forestry config + lifespan modifier
+        int baseCycle = forestry.apiculture.ModuleApiculture.ticksPerBeeWorkCycle;
+        int effectiveTicksPerHealth = Math.round(baseCycle * modifiers.lifespan);
+        final int BREEDING_TIME_TICKS = 100;
+
         IBeeHousingInventory inv = housing.getBeeInventory();
         if (beeRoot != null && !inv.getQueen().isEmpty()) {
             IBee bee = beeRoot.getMember(inv.getQueen());
-            if (bee != null && bee.isAnalyzed()) {
-                IBeeGenome genome = bee.getGenome();
-                lines.add("gtbm.bee.label.production\t" +
-                        String.format("%.0f%%", 100F * modifiers.production * genome.getSpeed()));
-                lines.add("gtbm.bee.label.flowering\t" +
-                        String.format("%.0f%%", modifiers.flowering * genome.getFlowering()));
-                lines.add("gtbm.bee.label.lifespan\t" +
-                        String.format("%.0f%%", 100F * modifiers.lifespan * genome.getLifespan()));
-                var t = genome.getTerritory();
-                lines.add("gtbm.bee.label.territory\t" + String.format("%.0f x %.0f x %.0f",
-                        t.getX() * modifiers.territory, t.getY() * modifiers.territory,
-                        t.getZ() * modifiers.territory));
+            if (bee != null) {
+                EnumBeeType type = beeRoot.getType(inv.getQueen());
+                if (type == EnumBeeType.QUEEN) {
+                    // Precise remaining time using cycle tick counter
+                    int cycleTick = cycleTickSupplier.getAsInt();
+                    int remainingInCycle = Math.max(0, effectiveTicksPerHealth - cycleTick);
+                    int remainingTotal = Math.max(0, bee.getHealth() - 1) * effectiveTicksPerHealth + remainingInCycle;
+                    lines.add("gtbm.bee.label.health\t" + bee.getHealth() + " / " + bee.getMaxHealth() + " (" +
+                            formatTime(remainingTotal / 20) + ")");
+
+                    // Next product: remaining ticks in current cycle
+                    lines.add("gtbm.bee.label.cycle\t" + (remainingInCycle / 20) + "s");
+                } else if (type == EnumBeeType.PRINCESS) {
+                    int remainingSeconds = BREEDING_TIME_TICKS / 20;
+                    lines.add("gtbm.bee.label.breeding\t" + remainingSeconds + "s");
+                }
+
+                if (bee.isAnalyzed()) {
+                    IBeeGenome genome = bee.getGenome();
+                    lines.add("gtbm.bee.label.production\t" +
+                            String.format("%.0f%%", 100F * modifiers.production * genome.getSpeed()));
+                    lines.add("gtbm.bee.label.flowering\t" +
+                            String.format("%.0f%%", modifiers.flowering * genome.getFlowering()));
+                    lines.add("gtbm.bee.label.lifespan\t" +
+                            String.format("%.0f%%", 100F * modifiers.lifespan * genome.getLifespan()));
+                    var t = genome.getTerritory();
+                    lines.add("gtbm.bee.label.territory\t" + String.format("%.0f x %.0f x %.0f",
+                            t.getX() * modifiers.territory, t.getY() * modifiers.territory,
+                            t.getZ() * modifiers.territory));
+                }
             }
+        }
+
+        // Active upgrade effects summary
+        boolean hasUpgradeEffects = modifiers.energy != 1 || modifiers.lifespan != 1 || modifiers.production != 1 ||
+                modifiers.mutation != 1 || modifiers.territory != 1 || modifiers.flowering != 1 ||
+                modifiers.geneticDecay != 1 || modifiers.humidity != 0 || modifiers.temperature != 0 ||
+                modifiers.isSealed || modifiers.isSelfLighted || modifiers.isSunlightSimulated ||
+                modifiers.isAutomated || modifiers.isCollectingPollen || modifiers.biomeOverride != null;
+        if (hasUpgradeEffects) {
+            lines.add("gtbm.bee.label.upgrade_note\t");
         }
 
         return lines;
@@ -226,5 +265,12 @@ public class WidgetBeeStatus extends Widget {
         if (!tooltip.isEmpty()) {
             drawHoveringText(ItemStack.EMPTY, tooltip, 200, mouseX, mouseY);
         }
+    }
+
+    private static String formatTime(int totalSeconds) {
+        if (totalSeconds >= 60) {
+            return String.format("%dm %ds", totalSeconds / 60, totalSeconds % 60);
+        }
+        return totalSeconds + "s";
     }
 }

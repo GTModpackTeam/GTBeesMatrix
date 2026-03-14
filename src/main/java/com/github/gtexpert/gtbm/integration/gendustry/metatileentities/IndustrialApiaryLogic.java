@@ -20,11 +20,16 @@ import forestry.core.errors.EnumErrorCode;
 
 public class IndustrialApiaryLogic extends RecipeLogicEnergy {
 
-    private static final int BASE_EU_PER_TICK = 32;
-
     private IBeeRoot beeRoot;
     private IBeekeepingLogic beekeepingLogic;
     private boolean needsMovePrincess;
+
+    public int getCycleTickCounter() {
+        // Estimate current cycle position from progressTime
+        if (maxProgressTime <= 0) return 0;
+        int effectiveTicks = getEffectiveTicksPerHealth();
+        return effectiveTicks > 0 ? (progressTime % effectiveTicks) : 0;
+    }
 
     public IndustrialApiaryLogic(@NotNull MetaTileEntity metaTileEntity, RecipeMap<?> recipeMap,
                                  Supplier<IEnergyContainer> energyContainer) {
@@ -91,20 +96,58 @@ public class IndustrialApiaryLogic extends RecipeLogicEnergy {
         }
     }
 
+    /**
+     * Base power consumption matching Gendustry:
+     * Gendustry uses 2 MJ/t internally = 20 RF/t displayed.
+     * We use the displayed RF value directly as EU/t.
+     */
+    private static final int BASE_EU_PER_TICK = 20;
+
     public int getEUPerTick() {
         ApiaryModifiers mods = getApiary().getModifiers();
-        if (mods == null) return BASE_EU_PER_TICK;
-        return (int) (BASE_EU_PER_TICK * mods.energy);
+        float energyMod = (mods != null) ? mods.energy : 1.0F;
+        return Math.max(1, Math.round(BASE_EU_PER_TICK * energyMod));
+    }
+
+    /**
+     * Get the actual ticks per work cycle from Forestry's config.
+     * Default: 550. Configurable in Forestry between 250-850.
+     */
+    private int getTicksPerWorkCycle() {
+        return forestry.apiculture.ModuleApiculture.ticksPerBeeWorkCycle;
+    }
+
+    /**
+     * Get the effective ticks per health point, accounting for lifespan modifier.
+     * Higher lifespan modifier = queen lives longer = more ticks per health.
+     * Forestry's age() logic: ageModifier = 1/lifespanModifier, health decreases by ageModifier per cycle.
+     * So effective ticks per health = ticksPerWorkCycle * lifespanModifier.
+     */
+    private int getEffectiveTicksPerHealth() {
+        int baseCycle = getTicksPerWorkCycle();
+        ApiaryModifiers mods = getApiary().getModifiers();
+        float lifespanMod = (mods != null) ? mods.lifespan : 1.0F;
+        return Math.round(baseCycle * lifespanMod);
     }
 
     // ---- Core tick logic ----
 
     @Override
     public void update() {
-        if (metaTileEntity.getWorld() == null || metaTileEntity.getWorld().isRemote) return;
+        if (metaTileEntity.getWorld() == null || metaTileEntity.getWorld().isRemote) {
+            // Handle wasActiveAndNeedsUpdate on client too
+            if (wasActiveAndNeedsUpdate) {
+                wasActiveAndNeedsUpdate = false;
+                setActive(false);
+            }
+            return;
+        }
 
         initBeekeepingLogic();
-        if (beekeepingLogic == null) return;
+        if (beekeepingLogic == null) {
+            if (isActive) setActive(false);
+            return;
+        }
 
         MetaTileEntityIndustrialApiary apiary = getApiary();
         needsMovePrincess = false;
@@ -116,19 +159,22 @@ public class IndustrialApiaryLogic extends RecipeLogicEnergy {
         int euPerTick = getEUPerTick();
         boolean hasPower = getEnergyStored() >= euPerTick;
 
+        // canWork() calls errorLogic.clearErrors() internally, then sets bee-related errors.
+        // We must set power error AFTER canWork() to avoid it being cleared.
+        boolean canWork = beekeepingLogic.canWork();
         apiary.getErrorLogic().setCondition(!hasPower, EnumErrorCode.NO_POWER);
 
-        // Beekeeping tick
-        boolean canWork = beekeepingLogic.canWork();
         boolean isWorking = hasPower && workingEnabled && canWork;
 
         if (isWorking) {
             beekeepingLogic.doWork();
             drawEnergy(euPerTick, false);
+            recipeEUt = euPerTick;
+        } else {
+            recipeEUt = 0;
         }
 
-        // GT energy indicator: only show when actively working but can't draw power
-        // (matches GT default: only during active recipe processing)
+        // GT energy indicator
         if (canWork && workingEnabled && !hasPower) {
             hasNotEnoughEnergy = true;
         } else if (hasNotEnoughEnergy && getEnergyInputPerSecond() > 19L * euPerTick) {
@@ -140,27 +186,53 @@ public class IndustrialApiaryLogic extends RecipeLogicEnergy {
             doMovePrincess();
         }
 
-        // Update GT active state
-        boolean hasQueen = !apiary.getQueen().isEmpty();
-        boolean shouldBeActive = isWorking || (hasQueen && canWork && workingEnabled);
-
-        if (isActive != shouldBeActive) {
-            setActive(shouldBeActive);
+        // Update GT active state: only active when actually working
+        if (isActive != isWorking) {
+            setActive(isWorking);
+        }
+        if (wasActiveAndNeedsUpdate) {
+            wasActiveAndNeedsUpdate = false;
+            setActive(false);
         }
 
-        // Progress for GUI
-        if (hasQueen && beekeepingLogic.getBeeProgressPercent() > 0) {
-            progressTime = beekeepingLogic.getBeeProgressPercent();
-            maxProgressTime = 100;
+        // Progress (smooth tick counter for TOP/GUI)
+        if (isWorking && !apiary.getQueen().isEmpty()) {
+            // Initialize max progress (only once per queen lifecycle)
+            if (maxProgressTime <= 0) {
+                IBeeRoot root = getBeeRoot();
+                if (root != null) {
+                    EnumBeeType type = root.getType(apiary.getQueen());
+                    if (type == EnumBeeType.QUEEN) {
+                        IBee bee = root.getMember(apiary.getQueen());
+                        if (bee != null && bee.getMaxHealth() > 0 && bee.getHealth() > 0) {
+                            int effectiveTicks = getEffectiveTicksPerHealth();
+                            maxProgressTime = bee.getMaxHealth() * effectiveTicks;
+                            progressTime = (bee.getMaxHealth() - bee.getHealth()) * effectiveTicks;
+                        }
+                    } else if (type == EnumBeeType.PRINCESS) {
+                        maxProgressTime = 100;
+                        progressTime = beekeepingLogic.getBeeProgressPercent();
+                    }
+                }
+            }
+
+            // Smooth increment every tick, stop at max
+            if (maxProgressTime > 0 && progressTime < maxProgressTime) {
+                progressTime++;
+            }
         } else {
             progressTime = 0;
             maxProgressTime = 0;
         }
     }
 
+    /**
+     * Progress for GUI ProgressWidget (0.0 → 1.0).
+     * Uses the same smooth tick-based values as TOP.
+     */
     public float getBeeProgress() {
-        if (beekeepingLogic == null || getApiary().getQueen().isEmpty()) return 0;
-        return beekeepingLogic.getBeeProgressPercent() / 100F;
+        if (maxProgressTime <= 0) return 0;
+        return (float) progressTime / maxProgressTime;
     }
 
     // ---- Princess auto-move ----
@@ -194,6 +266,16 @@ public class IndustrialApiaryLogic extends RecipeLogicEnergy {
 
     @Override
     public NBTTagCompound serializeNBT() {
+        // Parent serialization accesses itemOutputs/fluidOutputs when progressTime > 0.
+        // Initialize them to empty to prevent NPE while preserving progress for TOP.
+        if (itemOutputs == null) {
+            itemOutputs = net.minecraft.util.NonNullList.create();
+        }
+        if (fluidOutputs == null) {
+            fluidOutputs = java.util.Collections.emptyList();
+        }
+        recipeEUt = getEUPerTick();
+
         NBTTagCompound tag = super.serializeNBT();
         if (beekeepingLogic != null) {
             NBTTagCompound beeTag = new NBTTagCompound();
