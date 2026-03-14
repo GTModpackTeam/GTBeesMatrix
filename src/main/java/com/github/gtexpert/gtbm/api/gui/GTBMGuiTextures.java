@@ -14,4 +14,12 @@ public class GTBMGuiTextures {
             .fullImage("textures/gui/icon/gtbm_logo_blinking_yellow.png");
     public static final TextureArea GTBM_LOGO_BLINKING_RED = TextureArea
             .fullImage("textures/gui/icon/gtbm_logo_blinking_red.png");
+
+    // Bee slot overlays
+    public static final TextureArea QUEEN_OVERLAY = TextureArea
+            .fullImage("textures/gui/overlay/queen_overlay.png");
+    public static final TextureArea DRONE_OVERLAY = TextureArea
+            .fullImage("textures/gui/overlay/drone_overlay.png");
+    public static final TextureArea UPGRADE_OVERLAY = TextureArea
+            .fullImage("textures/gui/overlay/upgrade_overlay.png");
 }
