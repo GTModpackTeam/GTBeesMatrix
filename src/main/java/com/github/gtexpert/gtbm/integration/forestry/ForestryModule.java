@@ -8,6 +8,7 @@ import com.github.gtexpert.gtbm.api.ModValues;
 import com.github.gtexpert.gtbm.api.modules.TModule;
 import com.github.gtexpert.gtbm.api.util.Mods;
 import com.github.gtexpert.gtbm.integration.GTBMIntegrationSubmodule;
+import com.github.gtexpert.gtbm.integration.forestry.loaders.FFMFarmingLoader;
 import com.github.gtexpert.gtbm.integration.forestry.loaders.FFMOreDictionaryLoader;
 import com.github.gtexpert.gtbm.integration.forestry.recipes.*;
 import com.github.gtexpert.gtbm.integration.forestry.recipes.machines.*;
@@ -28,6 +29,8 @@ public class ForestryModule extends GTBMIntegrationSubmodule {
         FFMMaterialsRecipe.init();
         FFMToolRecipe.init();
         FFMCraftingRecipe.init();
+
+        FFMFarmingLoader.init();
 
         CarpenterLoader.initBase();
         CarpenterLoader.initMode();
