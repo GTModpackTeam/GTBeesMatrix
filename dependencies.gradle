@@ -96,6 +96,7 @@ dependencies {
     }
 
     // Debug GTFO: 1.12.5
+    compileOnly rfg.deobf("curse.maven:gregtech-food-option-477021:6472136")
     if (project.debug_all.toBoolean() || project.debug_gtfo.toBoolean()) {
         runtimeOnly rfg.deobf("curse.maven:gregtech-food-option-477021:6472136")
     }

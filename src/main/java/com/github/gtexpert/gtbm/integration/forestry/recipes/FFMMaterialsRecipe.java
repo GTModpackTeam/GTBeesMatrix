@@ -1,6 +1,15 @@
 package com.github.gtexpert.gtbm.integration.forestry.recipes;
 
+import net.minecraft.item.ItemStack;
+import net.minecraftforge.fluids.FluidStack;
+
+import gregtech.api.recipes.GTRecipeHandler;
 import gregtech.api.recipes.ModHandler;
+import gregtech.api.recipes.RecipeMaps;
+import gregtech.api.unification.OreDictUnifier;
+import gregtech.api.unification.material.Materials;
+import gregtech.api.unification.ore.OrePrefix;
+import gregtech.common.items.MetaItems;
 
 import com.github.gtexpert.gtbm.api.util.Mods;
 
@@ -49,6 +58,23 @@ public class FFMMaterialsRecipe {
 
         // Apatite Block
         ModHandler.removeRecipeByName(Mods.Forestry.getResource("apatite_block"));
+
+        // Remove GT Fertilizer -> Forestry fertilizer_compound bulk recipes
+        GTRecipeHandler.removeRecipesByInputs(RecipeMaps.MIXER_RECIPES,
+                new ItemStack[] {
+                        MetaItems.FERTILIZER.getStackForm(8),
+                        OreDictUnifier.get(OrePrefix.dust, Materials.Apatite)
+                },
+                new FluidStack[] { Materials.Water.getFluid(1000) });
+
+        if (Mods.MagicBees.isModLoaded()) {
+            GTRecipeHandler.removeRecipesByInputs(RecipeMaps.MIXER_RECIPES,
+                    new ItemStack[] {
+                            MetaItems.FERTILIZER.getStackForm(8),
+                            Mods.MagicBees.getItem("resource", 1, 2)
+                    },
+                    new FluidStack[] { Materials.Water.getFluid(1000) });
+        }
     }
 
     public static void materialCharcoal() {

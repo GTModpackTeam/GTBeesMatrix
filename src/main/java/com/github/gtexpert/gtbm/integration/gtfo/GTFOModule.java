@@ -2,11 +2,13 @@ package com.github.gtexpert.gtbm.integration.gtfo;
 
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraftforge.event.RegistryEvent;
+import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 
 import com.github.gtexpert.gtbm.api.ModValues;
 import com.github.gtexpert.gtbm.api.modules.TModule;
 import com.github.gtexpert.gtbm.api.util.Mods;
 import com.github.gtexpert.gtbm.integration.GTBMIntegrationSubmodule;
+import com.github.gtexpert.gtbm.integration.gtfo.loaders.GTFOFarmingLoader;
 import com.github.gtexpert.gtbm.integration.gtfo.recipes.GTFOOverrideRecipe;
 import com.github.gtexpert.gtbm.module.Modules;
 
@@ -17,6 +19,12 @@ import com.github.gtexpert.gtbm.module.Modules;
          name = "GTBeesMatrix Gregtech Food Option Integration",
          description = "Gregtech Food Option Integration Module")
 public class GTFOModule extends GTBMIntegrationSubmodule {
+
+    @Override
+    public void postInit(FMLPostInitializationEvent event) {
+        if (Mods.Forestry.isModLoaded())
+            GTFOFarmingLoader.init();
+    }
 
     @Override
     public void registerRecipesLowest(RegistryEvent.Register<IRecipe> event) {
