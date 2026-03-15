@@ -1,3 +1,10 @@
+# v1.3.0
+- Multifarm Gregification [#12](https://github.com/GTModpackTeam/GTBeesMatrix/pull/12)
+- Add Industrial Apiary [#13](https://github.com/GTModpackTeam/GTBeesMatrix/pull/13)
+    - Please report any unusual behavior. However, please note that the UI being null is by design.
+
+* * *
+
 # v1.2.0
 - Add Forestry Multifarm support for GregTech/GTFO saplings and GT fertilizer [#11](https://github.com/GTModpackTeam/GTBeesMatrix/pull/11)
 

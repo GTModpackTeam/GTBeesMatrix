@@ -5,17 +5,17 @@ import gregtech.api.unification.material.Materials;
 
 import com.github.gtexpert.gtbm.api.util.Mods;
 import com.github.gtexpert.gtbm.integration.forestry.ForestryConfigHolder;
-import com.github.gtexpert.gtbm.integration.forestry.ForestryUtility;
+import com.github.gtexpert.gtbm.integration.forestry.util.ForestryRecipeHelper;
 
 import forestry.api.recipes.RecipeManagers;
 
 public class BinniesItemsRecipe {
 
     public static void init() {
-        Enum<ForestryUtility.recipeMode> recipeMode = ForestryUtility.recipeMode
+        Enum<ForestryRecipeHelper.RecipeMode> recipeMode = ForestryRecipeHelper.RecipeMode
                 .safeValueOf(ForestryConfigHolder.gameMode);
 
-        if (recipeMode == ForestryUtility.recipeMode.HARD) {
+        if (recipeMode == ForestryRecipeHelper.RecipeMode.HARD) {
             // Registry
             ModHandler.removeRecipeByName(Mods.Genetics.getResource("registry"));
             RecipeManagers.carpenterManager.addRecipe(

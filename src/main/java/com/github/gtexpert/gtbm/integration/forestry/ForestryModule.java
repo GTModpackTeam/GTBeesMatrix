@@ -14,6 +14,7 @@ import com.github.gtexpert.gtbm.integration.forestry.loaders.FFMFarmingLoader;
 import com.github.gtexpert.gtbm.integration.forestry.loaders.FFMOreDictionaryLoader;
 import com.github.gtexpert.gtbm.integration.forestry.recipes.*;
 import com.github.gtexpert.gtbm.integration.forestry.recipes.machines.*;
+import com.github.gtexpert.gtbm.integration.forestry.util.BeeHousingInfoProvider;
 import com.github.gtexpert.gtbm.module.Modules;
 
 @TModule(
@@ -38,6 +39,11 @@ public class ForestryModule extends GTBMIntegrationSubmodule {
         CarpenterLoader.initMode();
         CentrifugeLoader.init();
         FabricatorLoader.init();
+
+        // Register TOP provider for bee housing health display
+        if (Mods.TheOneProbe.isModLoaded()) {
+            mcjty.theoneprobe.TheOneProbe.theOneProbeImp.registerProvider(new BeeHousingInfoProvider());
+        }
     }
 
     @Override
