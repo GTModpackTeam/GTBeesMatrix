@@ -1,22 +1,26 @@
 package com.github.gtexpert.gtbm.integration.gendustry.metatileentities.multiblock;
 
-import codechicken.lib.render.CCRenderState;
-import codechicken.lib.render.pipeline.IVertexOperation;
-import codechicken.lib.vec.Matrix4;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
-import com.github.gtexpert.gtbm.api.util.Mods;
-import com.github.gtexpert.gtbm.client.GTBMTextures;
-import forestry.api.apiculture.BeeManager;
-import forestry.api.apiculture.IAlleleBeeSpecies;
-import forestry.api.apiculture.IBeeGenome;
+import net.minecraft.block.Block;
+import net.minecraft.init.Blocks;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.NonNullList;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextFormatting;
+import net.minecraft.world.World;
+import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
-import forestry.api.apiculture.IBeekeepingMode;
-import forestry.apiculture.ModuleApiculture;
-import forestry.apiculture.blocks.BlockAlvearyType;
-import forestry.apiculture.genetics.BeeDefinition;
-import forestry.apiculture.genetics.BeeGenome;
-
-import forestry.arboriculture.ModuleArboriculture;
+import org.jetbrains.annotations.NotNull;
 
 import gregtech.api.GTValues;
 import gregtech.api.capability.GregtechDataCodes;
@@ -32,7 +36,6 @@ import gregtech.api.metatileentity.multiblock.IMultiblockPart;
 import gregtech.api.metatileentity.multiblock.MultiblockAbility;
 import gregtech.api.metatileentity.multiblock.MultiblockDisplayText;
 import gregtech.api.metatileentity.multiblock.MultiblockWithDisplayBase;
-
 import gregtech.api.pattern.BlockPattern;
 import gregtech.api.pattern.FactoryBlockPattern;
 import gregtech.api.pattern.PatternMatchContext;
@@ -44,40 +47,28 @@ import gregtech.api.util.RelativeDirection;
 import gregtech.api.util.TextComponentUtil;
 import gregtech.api.util.TextFormattingUtil;
 import gregtech.client.renderer.ICubeRenderer;
-
 import gregtech.client.renderer.texture.Textures;
 import gregtech.common.blocks.BlockGlassCasing;
 import gregtech.common.blocks.BlockMetalCasing;
 import gregtech.common.blocks.MetaBlocks;
-
 import gregtech.common.metatileentities.MetaTileEntities;
-
 import gregtechfoodoption.block.GTFOMetaBlocks;
 
-import net.minecraft.block.Block;
-import net.minecraft.init.Blocks;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.NonNullList;
-import net.minecraft.util.ResourceLocation;
+import com.github.gtexpert.gtbm.api.util.Mods;
+import com.github.gtexpert.gtbm.client.GTBMTextures;
 
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.world.World;
-
-import net.minecraftforge.common.capabilities.Capability;
-
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
-
-import org.jetbrains.annotations.NotNull;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import codechicken.lib.render.CCRenderState;
+import codechicken.lib.render.pipeline.IVertexOperation;
+import codechicken.lib.vec.Matrix4;
+import forestry.api.apiculture.BeeManager;
+import forestry.api.apiculture.IAlleleBeeSpecies;
+import forestry.api.apiculture.IBeeGenome;
+import forestry.api.apiculture.IBeekeepingMode;
+import forestry.apiculture.ModuleApiculture;
+import forestry.apiculture.blocks.BlockAlvearyType;
+import forestry.apiculture.genetics.BeeDefinition;
+import forestry.apiculture.genetics.BeeGenome;
+import forestry.arboriculture.ModuleArboriculture;
 
 public class MetaTileEntityMegaApiary extends MultiblockWithDisplayBase implements IControllable {
 
@@ -133,30 +124,62 @@ public class MetaTileEntityMegaApiary extends MultiblockWithDisplayBase implemen
     }
 
     @Override
-    protected void updateFormedValid() {
-
-    }
+    protected void updateFormedValid() {}
 
     @Override
     protected @NotNull BlockPattern createStructurePattern() {
         return FactoryBlockPattern.start(RelativeDirection.RIGHT, RelativeDirection.FRONT, RelativeDirection.DOWN)
-                .aisle("###############", "###############", "###############", "######HHH######", "####HHAAAHH####", "####HAPLPAH####", "###HAPAAAPAH###", "###HALAAALAH###", "###HAPAAAPAH###", "####HAPLPAH####", "####HHAAAHH####", "######HHH######", "###############", "###############", "###############")
-                .aisle("###############", "###############", "######GGG######", "####GG###GG####", "###G#######G###", "###G#######G###", "##G#########G##", "##G#########G##", "##G#########G##", "###G#######G###", "###G#######G###", "####GG###GG####", "######GGG######", "###############", "###############")
-                .aisle("###############", "######HHH######", "###HHH###HHH###", "##HG#######GH##", "##H#########H##", "##H#########H##", "#H###########H#", "#H###########H#", "#H###########H#", "##H#########H##", "##H#########H##", "##HG#######GH##", "###HHH###HHH###", "######HHH######", "###############")
-                .aisle("######GGG######", "###GGG###GGG###", "##G#########G##", "#G###########G#", "#G###########G#", "#G###########G#", "G#############G", "G#############G", "G#############G", "#G###########G#", "#G###########G#", "#G###########G#", "##G#########G##", "###GGG###GGG###", "######GGG######")
-                .aisle("######AAA######", "###OLA###ALO###", "##P#########P##", "#O###########O#", "#L###########L#", "#A###########A#", "A#############A", "A#############A", "A#############A", "#A###########A#", "#L###########L#", "#O###########O#", "##P#########P##", "###OLA###ALO###", "######AAA######")
-                .aisle("#####AAAAA#####", "###NA#####AO###", "##P#########P##", "#N###########O#", "#A###########A#", "A#############A", "A#####III#####A", "A#####III#####A", "A#####III#####A", "A#############A", "#A###########A#", "#N###########N#", "##P#########P##", "###NA#####AN###", "#####AAAAA#####")
-                .aisle("#####AAAAA#####", "###NA#FFF#AO###", "##PFF#####FFP##", "#NF########FFO#", "#AF#########FA#", "A#############A", "AF####JJJ####FA", "AF####JKJ####FA", "AF####JJJ####FA", "A#############A", "#AF#########FA#", "#NFF#######FFN#", "##PFF#####FFP##", "###NA#FFF#AN###", "#####AAAAA#####")
-                .aisle("######AAA######", "###OLAFFFALO###", "##PFFFFFFFFFP##", "#OFFFF###FFFFO#", "#LFF#######FFL#", "#AFF#FFFFF##FA#", "AFF##FKKKFF#FFA", "AFF#FFKKKFF#FFA", "AFF#FFKKKF##FFA", "#AF##FFFFF##FA#", "#LFF###FF##FFL#", "#OFFFF####FFFO#", "##PFFFFFFFFFP##", "###OLAFFFALO###", "######AAA######")
-                .aisle("######GSG######", "###GGGBBBGGG###", "##GBBFFFFFBBG##", "#GBFFF###FFBBG#", "#GBF#######FBG#", "#GFF#FFFFF##FG#", "GBF##FKKKFF#FBG", "GBF#FFKJKFF#FBG", "GBF#FFKKKF##FBG", "#GF##FFFFF##FG#", "#GBF###FF##FBG#", "#GBBFF####FBBG#", "##GBBFFFFFBBG##", "###GGGBBBGGG###", "######GGG######")
-                .aisle("######HHH######", "####HHBBBHH####", "##HHBBBBBBBHH##", "##HBBBWWWBBBH##", "#HBBWWWWWWWBBH#", "#HBBWBBBBBWWBH#", "HBBWWBBBBBBWBBH", "HBBWBBBBBBBWBBH", "HBBWBBBBBBWWBBH", "#HBWWBBBBBWWBH#", "#HBBWWWBBWWBBH#", "##HBBBWWWWBBH##", "##HHBBBBBBBHH##", "####HHBBBHH####", "######HHH######")
-                .aisle("###############", "#####GGGGG#####", "###GGGBBBBGG###", "##GBBBBBBBBBG##", "##GBBBBBBBBBG##", "#GBBBBBBBBBBBG#", "#GBBBBBBBBBBBG#", "#GBBBBBBBBBBBG#", "#GBBBBBBBBBBBG#", "#GBBBBBBBBBBBG#", "##GBBBBBBBBBG##", "##GBBBBBBBBBG##", "###GGBBBBBGG###", "#####GGGGG#####", "###############")
-                .aisle("###############", "######HHH######", "####HHBBBHH####", "###HBBBBBBBH###", "##HBBBBBBBBBH##", "##HBBBBBBBBBH##", "#HBBBBBBBBBBBH#", "#HBBBBBBBBBBBH#", "#HBBBBBBBBBBBH#", "##HBBBBBBBBBH##", "##HBBBBBBBBBH##", "###HBBBBBBBH###", "####HHBBBHH####", "######HHH######", "###############")
-                .aisle("###############", "###############", "######GGG######", "####GGBBBGG####", "###GBBBBBBBG###", "###GBBBBBBBG###", "##GBBBBBBBBBG##", "##GBBBBBBBBBG##", "##GBBBBBBBBBG##", "###GBBBBBBBG###", "###GBBBBBBBG###", "####GGBBBGG####", "######GGG######", "###############", "###############")
-                .aisle("###############", "###############", "#######H#######", "#####HHBHH#####", "####HBBBBBH####", "###HBBBBBBBH###", "###HBBBBBBBH###", "##HBBBBBBBBBH##", "###HBBBBBBBH###", "###HBBBBBBBH###", "####HBBBBBH####", "#####HHBHH#####", "#######H#######", "###############", "###############")
-                .aisle("###############", "###############", "###############", "#######G#######", "#####GGBGG#####", "####GBBBBBG####", "####GBBBBBG####", "###GBBBBBBBG###", "####GBBBBBG####", "####GBBBBBG####", "#####GGBGG#####", "#######G#######", "###############", "###############", "###############")
-                .aisle("###############", "###############", "###############", "###############", "######HHH######", "#####HHHHH#####", "####HHBBBHH####", "####HHBBBHH####", "####HHBBBHH####", "#####HHHHH#####", "######HHH######", "###############", "###############", "###############", "###############")
-                .aisle("###############", "###############", "###############", "###############", "###############", "###############", "######GGG######", "######GHG######", "######GGG######", "###############", "###############", "###############", "###############", "###############", "###############")
+                .aisle("###############", "###############", "###############", "######HHH######", "####HHAAAHH####",
+                        "####HAPLPAH####", "###HAPAAAPAH###", "###HALAAALAH###", "###HAPAAAPAH###", "####HAPLPAH####",
+                        "####HHAAAHH####", "######HHH######", "###############", "###############", "###############")
+                .aisle("###############", "###############", "######GGG######", "####GG###GG####", "###G#######G###",
+                        "###G#######G###", "##G#########G##", "##G#########G##", "##G#########G##", "###G#######G###",
+                        "###G#######G###", "####GG###GG####", "######GGG######", "###############", "###############")
+                .aisle("###############", "######HHH######", "###HHH###HHH###", "##HG#######GH##", "##H#########H##",
+                        "##H#########H##", "#H###########H#", "#H###########H#", "#H###########H#", "##H#########H##",
+                        "##H#########H##", "##HG#######GH##", "###HHH###HHH###", "######HHH######", "###############")
+                .aisle("######GGG######", "###GGG###GGG###", "##G#########G##", "#G###########G#", "#G###########G#",
+                        "#G###########G#", "G#############G", "G#############G", "G#############G", "#G###########G#",
+                        "#G###########G#", "#G###########G#", "##G#########G##", "###GGG###GGG###", "######GGG######")
+                .aisle("######AAA######", "###OLA###ALO###", "##P#########P##", "#O###########O#", "#L###########L#",
+                        "#A###########A#", "A#############A", "A#############A", "A#############A", "#A###########A#",
+                        "#L###########L#", "#O###########O#", "##P#########P##", "###OLA###ALO###", "######AAA######")
+                .aisle("#####AAAAA#####", "###NA#####AO###", "##P#########P##", "#N###########O#", "#A###########A#",
+                        "A#############A", "A#####III#####A", "A#####III#####A", "A#####III#####A", "A#############A",
+                        "#A###########A#", "#N###########N#", "##P#########P##", "###NA#####AN###", "#####AAAAA#####")
+                .aisle("#####AAAAA#####", "###NA#FFF#AO###", "##PFF#####FFP##", "#NF########FFO#", "#AF#########FA#",
+                        "A#############A", "AF####JJJ####FA", "AF####JKJ####FA", "AF####JJJ####FA", "A#############A",
+                        "#AF#########FA#", "#NFF#######FFN#", "##PFF#####FFP##", "###NA#FFF#AN###", "#####AAAAA#####")
+                .aisle("######AAA######", "###OLAFFFALO###", "##PFFFFFFFFFP##", "#OFFFF###FFFFO#", "#LFF#######FFL#",
+                        "#AFF#FFFFF##FA#", "AFF##FKKKFF#FFA", "AFF#FFKKKFF#FFA", "AFF#FFKKKF##FFA", "#AF##FFFFF##FA#",
+                        "#LFF###FF##FFL#", "#OFFFF####FFFO#", "##PFFFFFFFFFP##", "###OLAFFFALO###", "######AAA######")
+                .aisle("######GSG######", "###GGGBBBGGG###", "##GBBFFFFFBBG##", "#GBFFF###FFBBG#", "#GBF#######FBG#",
+                        "#GFF#FFFFF##FG#", "GBF##FKKKFF#FBG", "GBF#FFKJKFF#FBG", "GBF#FFKKKF##FBG", "#GF##FFFFF##FG#",
+                        "#GBF###FF##FBG#", "#GBBFF####FBBG#", "##GBBFFFFFBBG##", "###GGGBBBGGG###", "######GGG######")
+                .aisle("######HHH######", "####HHBBBHH####", "##HHBBBBBBBHH##", "##HBBBWWWBBBH##", "#HBBWWWWWWWBBH#",
+                        "#HBBWBBBBBWWBH#", "HBBWWBBBBBBWBBH", "HBBWBBBBBBBWBBH", "HBBWBBBBBBWWBBH", "#HBWWBBBBBWWBH#",
+                        "#HBBWWWBBWWBBH#", "##HBBBWWWWBBH##", "##HHBBBBBBBHH##", "####HHBBBHH####", "######HHH######")
+                .aisle("###############", "#####GGGGG#####", "###GGGBBBBGG###", "##GBBBBBBBBBG##", "##GBBBBBBBBBG##",
+                        "#GBBBBBBBBBBBG#", "#GBBBBBBBBBBBG#", "#GBBBBBBBBBBBG#", "#GBBBBBBBBBBBG#", "#GBBBBBBBBBBBG#",
+                        "##GBBBBBBBBBG##", "##GBBBBBBBBBG##", "###GGBBBBBGG###", "#####GGGGG#####", "###############")
+                .aisle("###############", "######HHH######", "####HHBBBHH####", "###HBBBBBBBH###", "##HBBBBBBBBBH##",
+                        "##HBBBBBBBBBH##", "#HBBBBBBBBBBBH#", "#HBBBBBBBBBBBH#", "#HBBBBBBBBBBBH#", "##HBBBBBBBBBH##",
+                        "##HBBBBBBBBBH##", "###HBBBBBBBH###", "####HHBBBHH####", "######HHH######", "###############")
+                .aisle("###############", "###############", "######GGG######", "####GGBBBGG####", "###GBBBBBBBG###",
+                        "###GBBBBBBBG###", "##GBBBBBBBBBG##", "##GBBBBBBBBBG##", "##GBBBBBBBBBG##", "###GBBBBBBBG###",
+                        "###GBBBBBBBG###", "####GGBBBGG####", "######GGG######", "###############", "###############")
+                .aisle("###############", "###############", "#######H#######", "#####HHBHH#####", "####HBBBBBH####",
+                        "###HBBBBBBBH###", "###HBBBBBBBH###", "##HBBBBBBBBBH##", "###HBBBBBBBH###", "###HBBBBBBBH###",
+                        "####HBBBBBH####", "#####HHBHH#####", "#######H#######", "###############", "###############")
+                .aisle("###############", "###############", "###############", "#######G#######", "#####GGBGG#####",
+                        "####GBBBBBG####", "####GBBBBBG####", "###GBBBBBBBG###", "####GBBBBBG####", "####GBBBBBG####",
+                        "#####GGBGG#####", "#######G#######", "###############", "###############", "###############")
+                .aisle("###############", "###############", "###############", "###############", "######HHH######",
+                        "#####HHHHH#####", "####HHBBBHH####", "####HHBBBHH####", "####HHBBBHH####", "#####HHHHH#####",
+                        "######HHH######", "###############", "###############", "###############", "###############")
+                .aisle("###############", "###############", "###############", "###############", "###############",
+                        "###############", "######GGG######", "######GHG######", "######GGG######", "###############",
+                        "###############", "###############", "###############", "###############", "###############")
                 .where('A', states(MetaBlocks.TRANSPARENT_CASING.getState(BlockGlassCasing.CasingType.FUSION_GLASS)))
                 .where('B', blocks(Blocks.DIRT).or(blocks(Blocks.GRASS)))
                 .where('G', states(MetaBlocks.METAL_CASING.getState(BlockMetalCasing.MetalCasingType.BRONZE_BRICKS))
@@ -214,7 +237,8 @@ public class MetaTileEntityMegaApiary extends MultiblockWithDisplayBase implemen
         energyHatch.addAll(Arrays.asList(MetaTileEntities.LASER_INPUT_HATCH_1024));
         energyHatch.addAll(Arrays.asList(MetaTileEntities.LASER_INPUT_HATCH_4096));
 
-        return metaTileEntities(energyHatch.toArray(new MetaTileEntity[0])).setMinGlobalLimited(1, 2).setMaxGlobalLimited(16);
+        return metaTileEntities(energyHatch.toArray(new MetaTileEntity[0])).setMinGlobalLimited(1, 2)
+                .setMaxGlobalLimited(16);
     }
 
     @Override
@@ -351,7 +375,7 @@ public class MetaTileEntityMegaApiary extends MultiblockWithDisplayBase implemen
             mode = BeeManager.beeRoot.getBeekeepingMode(world);
         }
 
-        for (ItemStack queen: queenStacks) {
+        for (ItemStack queen : queenStacks) {
             IBeeGenome genome;
             NBTTagCompound tag = queen.getTagCompound();
             if (tag == null || tag.isEmpty() || !tag.hasKey("Genome")) {
@@ -364,16 +388,17 @@ public class MetaTileEntityMegaApiary extends MultiblockWithDisplayBase implemen
             IAlleleBeeSpecies secondary = genome.getSecondary();
 
             float speed = genome.getSpeed();
-            float baseModifier = mode.getBeeModifier().getProductionModifier(genome, MAX_PRODUCTION_MODIFIER_FROM_UPGRADES);
+            float baseModifier = mode.getBeeModifier().getProductionModifier(genome,
+                    MAX_PRODUCTION_MODIFIER_FROM_UPGRADES);
 
             primary.getProductChances().forEach((stack, f) -> {
-                    double v = speed + f + baseModifier + baseModifier * getMaxTier();
-                    while (v > 1.0F) {
-                        int size = Math.min((int) v, 64);
-                        stack.setCount(size);
-                        products.add(stack);
-                        v -= size;
-                    }
+                double v = speed + f + baseModifier + baseModifier * getMaxTier();
+                while (v > 1.0F) {
+                    int size = Math.min((int) v, 64);
+                    stack.setCount(size);
+                    products.add(stack);
+                    v -= size;
+                }
             });
             secondary.getProductChances().forEach((stack, f) -> {
                 double v = speed + f + baseModifier + baseModifier * getMaxTier();
@@ -464,19 +489,18 @@ public class MetaTileEntityMegaApiary extends MultiblockWithDisplayBase implemen
                                 "gtbm.multiblock.maga_apiary.outputs",
                                 TextComponentUtil.stringWithColor(
                                         TextFormatting.AQUA,
-                                        stack.getDisplayName()
-                                ),
+                                        stack.getDisplayName()),
                                 TextComponentUtil.stringWithColor(
                                         TextFormatting.GOLD,
-                                        TextFormattingUtil.formatNumbers(stack.getCount()))
-                        ));
+                                        TextFormattingUtil.formatNumbers(stack.getCount()))));
                     }
                 })
                 .addWorkingStatusLine();
     }
 
     private static ITextComponent formatTime(double time) {
-        return TextComponentUtil.translationWithColor(TextFormatting.GRAY, "gtbm.multiblock.progress_sec", String.format("%.2f", time));
+        return TextComponentUtil.translationWithColor(TextFormatting.GRAY, "gtbm.multiblock.progress_sec",
+                String.format("%.2f", time));
     }
 
     // ==Others==
