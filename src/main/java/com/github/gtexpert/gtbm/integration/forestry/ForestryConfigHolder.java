@@ -17,15 +17,15 @@ public class ForestryConfigHolder {
     public static String gameMode = "NORMAL";
 
     @Config.Comment({ "If true, each will be uncraftable.", "default: true" })
-    public static boolean Still = true,
-            Fabricator = true,
-            Centrifuge = true,
-            Bottler = true,
-            Fermenter = true,
-            Rainmaker = true,
-            Carpenter = true,
-            Moistener = true,
-            Raintank = true,
-            Squeezer = true,
-            FarmBlock = true;
+    public static boolean still = true,
+            fabricator = true,
+            centrifuge = true,
+            bottler = true,
+            fermenter = true,
+            rainmaker = true,
+            carpenter = true,
+            moistener = true,
+            raintank = true,
+            squeezer = true,
+            farmBlock = true;
 }

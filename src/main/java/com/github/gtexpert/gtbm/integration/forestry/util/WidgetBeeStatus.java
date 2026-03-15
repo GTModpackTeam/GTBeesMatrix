@@ -117,15 +117,19 @@ public class WidgetBeeStatus extends Widget {
         }
 
         // Upgrade note (check if any modifier is non-default)
-        if (modifiers.energy != 1 || modifiers.lifespan != 1 || modifiers.production != 1 ||
-                modifiers.mutation != 1 || modifiers.territory != 1 || modifiers.flowering != 1 ||
-                modifiers.geneticDecay != 1 || modifiers.humidity != 0 || modifiers.temperature != 0 ||
-                modifiers.isSealed || modifiers.isSelfLighted || modifiers.isSunlightSimulated ||
-                modifiers.isAutomated || modifiers.isCollectingPollen || modifiers.biomeOverride != null) {
+        if (hasActiveUpgrades(modifiers)) {
             addLine(lines, "gtbm.bee.label.upgrade_note", "");
         }
 
         return lines;
+    }
+
+    private static boolean hasActiveUpgrades(ApiaryModifiers mods) {
+        return mods.energy != 1 || mods.lifespan != 1 || mods.production != 1 ||
+                mods.mutation != 1 || mods.territory != 1 || mods.flowering != 1 ||
+                mods.geneticDecay != 1 || mods.humidity != 0 || mods.temperature != 0 ||
+                mods.isSealed || mods.isSelfLighted || mods.isSunlightSimulated ||
+                mods.isAutomated || mods.isCollectingPollen || mods.biomeOverride != null;
     }
 
     private void addBeeStats(List<String> lines, IBee bee, IBeeHousingInventory inv) {
@@ -147,6 +151,8 @@ public class WidgetBeeStatus extends Widget {
             addLine(lines, "gtbm.bee.label.territory", String.format("%.0f x %.0f x %.0f",
                     t.getX() * modifiers.territory, t.getY() * modifiers.territory,
                     t.getZ() * modifiers.territory));
+        } else {
+            addLine(lines, "gtbm.bee.label.not_analyzed", "");
         }
     }
 

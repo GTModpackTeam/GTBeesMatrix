@@ -23,6 +23,8 @@ import forestry.core.errors.EnumErrorCode;
 public class IndustrialApiaryLogic extends RecipeLogicEnergy {
 
     private static final int BASE_EU_PER_TICK = 80;
+    private static final int PROGRESS_SYNC_TICKS = 20;
+    private static final int BREEDING_TIME_TICKS = 100;
     private IBeeRoot beeRoot;
     private IBeekeepingLogic beekeepingLogic;
     private boolean needsMovePrincess;
@@ -192,7 +194,7 @@ public class IndustrialApiaryLogic extends RecipeLogicEnergy {
             // Periodic resync with actual health (every 20 ticks)
             // Forestry's aging is probabilistic, so progress can drift
             progressSyncCounter++;
-            if (progressSyncCounter >= 20 && maxProgressTime > 0) {
+            if (progressSyncCounter >= PROGRESS_SYNC_TICKS && maxProgressTime > 0) {
                 progressSyncCounter = 0;
                 resyncIfHealthChanged(apiary);
             }
@@ -223,7 +225,7 @@ public class IndustrialApiaryLogic extends RecipeLogicEnergy {
                 lastSyncedHealth = bee.getHealth();
             }
         } else if (type == EnumBeeType.PRINCESS) {
-            maxProgressTime = 100;
+            maxProgressTime = BREEDING_TIME_TICKS;
             progressTime = beekeepingLogic.getBeeProgressPercent();
             lastSyncedHealth = -1;
         }

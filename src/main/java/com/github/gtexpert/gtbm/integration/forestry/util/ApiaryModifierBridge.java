@@ -14,6 +14,8 @@ import forestry.api.apiculture.IBeeGenome;
  */
 public class ApiaryModifierBridge extends DefaultBeeModifier {
 
+    private static final float MAX_TERRITORY = 5;
+
     protected final ApiaryModifiers modifiers;
 
     public ApiaryModifierBridge(ApiaryModifiers modifiers) {
@@ -22,7 +24,7 @@ public class ApiaryModifierBridge extends DefaultBeeModifier {
 
     @Override
     public float getTerritoryModifier(IBeeGenome genome, float currentModifier) {
-        return Math.min(modifiers.territory, 5);
+        return Math.min(modifiers.territory, MAX_TERRITORY);
     }
 
     @Override

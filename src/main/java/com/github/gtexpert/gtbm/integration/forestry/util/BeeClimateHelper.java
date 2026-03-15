@@ -30,8 +30,10 @@ public class BeeClimateHelper {
     }
 
     public Biome getBiome(World world, BlockPos pos) {
-        Biome biome = getEffectiveBiome(world, pos);
-        return biome != null ? biome : world.getBiome(pos);
+        if (modifiers.biomeOverride != null) {
+            return modifiers.biomeOverride;
+        }
+        return world.getBiome(pos);
     }
 
     public EnumTemperature getTemperature(@Nullable World world, BlockPos pos) {

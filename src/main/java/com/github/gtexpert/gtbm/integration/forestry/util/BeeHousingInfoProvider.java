@@ -22,6 +22,10 @@ import mcjty.theoneprobe.api.ProbeMode;
  */
 public class BeeHousingInfoProvider implements IProbeInfoProvider {
 
+    private static final int HEALTH_THRESHOLD_DIVISOR = 4;
+    private static final int HEALTH_COLOR_HIGH = 0xFF00D4CE;
+    private static final int HEALTH_COLOR_LOW = 0xFFBB1C28;
+
     @Override
     public String getID() {
         return ModValues.MODID + ":bee_housing_provider";
@@ -49,7 +53,7 @@ public class BeeHousingInfoProvider implements IProbeInfoProvider {
             if (bee != null && bee.getMaxHealth() > 0) {
                 int health = bee.getHealth();
                 int maxHealth = bee.getMaxHealth();
-                int color = health > maxHealth / 4 ? 0xFF00D4CE : 0xFFBB1C28;
+                int color = health > maxHealth / HEALTH_THRESHOLD_DIVISOR ? HEALTH_COLOR_HIGH : HEALTH_COLOR_LOW;
                 probeInfo.progress(health, maxHealth, probeInfo.defaultProgressStyle()
                         .suffix(" / " + maxHealth + " HP")
                         .filledColor(color)

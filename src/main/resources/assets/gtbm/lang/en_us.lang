@@ -29,6 +29,7 @@ gtbm.bee.label.territory=Territory: %s
 gtbm.bee.label.health=Queen Health: %s
 gtbm.bee.label.cycle=Next Product: %s
 gtbm.bee.label.breeding=Breeding Progress: %s
+gtbm.bee.label.not_analyzed=§o§eInsert analyzed bee to see more info
 gtbm.bee.label.upgrade_note=§o§7Upgrade changes apply from next cycle
 
 # GUI

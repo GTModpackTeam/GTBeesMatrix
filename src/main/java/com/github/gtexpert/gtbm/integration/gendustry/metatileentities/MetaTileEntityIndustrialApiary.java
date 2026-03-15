@@ -17,7 +17,6 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 import net.minecraftforge.items.IItemHandlerModifiable;
-import net.minecraftforge.items.ItemStackHandler;
 
 import com.mojang.authlib.GameProfile;
 
@@ -132,7 +131,7 @@ public class MetaTileEntityIndustrialApiary extends GTBMSimpleMachineMetaTileEnt
     @Override
     protected void initializeInventory() {
         super.initializeInventory();
-        this.upgradeInventory = new ItemStackHandler(getUpgradeSlotCount()) {
+        this.upgradeInventory = new NotifiableItemStackHandler(this, getUpgradeSlotCount(), this, false) {
 
             @Override
             public boolean isItemValid(int slot, @org.jetbrains.annotations.NotNull ItemStack stack) {

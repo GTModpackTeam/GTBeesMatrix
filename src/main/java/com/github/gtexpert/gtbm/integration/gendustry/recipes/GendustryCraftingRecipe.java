@@ -23,7 +23,7 @@ public class GendustryCraftingRecipe {
 
     public static void recipeRemoval() {
         Map<Supplier<Boolean>, String> recipes = new HashMap<>();
-        recipes.put(() -> GendustryConfigHolder.IndustrialApiary, "industrial_apiary");
+        recipes.put(() -> GendustryConfigHolder.industrialApiary, "industrial_apiary");
 
         recipes.forEach((config, name) -> {
             if (config.get()) {

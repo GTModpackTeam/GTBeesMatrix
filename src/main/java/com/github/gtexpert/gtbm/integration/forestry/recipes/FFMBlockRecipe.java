@@ -70,7 +70,7 @@ public class FFMBlockRecipe {
     }
 
     public static void farm() {
-        if (!ForestryConfigHolder.FarmBlock) return;
+        if (!ForestryConfigHolder.farmBlock) return;
 
         BlockRegistryFarming blocks = getBlocks();
 
