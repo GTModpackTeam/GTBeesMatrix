@@ -1,1 +1,9 @@
 gtbm.tooltip.warn.disabled_item=§l§dThis item is disabled!!
+
+# Multiblock Display
+gtbm.multiblock.progress=Progress: %s / %s (%s%%)
+gtbm.multiblock.progress_sec=%s s
+
+# Mega Apiary
+gtbm.multiblock.mega_apiary.princess=Queens: %s
+gtbm.multiblock.maga_apiary.outputs=%s: §6x%s
