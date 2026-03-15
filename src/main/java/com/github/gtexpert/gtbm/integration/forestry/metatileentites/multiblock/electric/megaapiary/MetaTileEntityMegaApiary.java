@@ -4,14 +4,20 @@ import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
 
+import com.github.gtexpert.gtbm.api.util.Mods;
+import com.github.gtexpert.gtbm.client.GTBMTextures;
 import forestry.api.apiculture.BeeManager;
+import forestry.api.apiculture.FlowerManager;
 import forestry.api.apiculture.IAlleleBeeSpecies;
 import forestry.api.apiculture.IBeeGenome;
 
 import forestry.api.apiculture.IBeekeepingMode;
 import forestry.apiculture.ModuleApiculture;
+import forestry.apiculture.blocks.BlockAlvearyType;
 import forestry.apiculture.genetics.BeeDefinition;
 import forestry.apiculture.genetics.BeeGenome;
+
+import forestry.arboriculture.ModuleArboriculture;
 
 import gregtech.api.GTValues;
 import gregtech.api.capability.GregtechDataCodes;
@@ -31,18 +37,29 @@ import gregtech.api.metatileentity.multiblock.MultiblockWithDisplayBase;
 import gregtech.api.pattern.BlockPattern;
 import gregtech.api.pattern.FactoryBlockPattern;
 import gregtech.api.pattern.PatternMatchContext;
+import gregtech.api.pattern.TraceabilityPredicate;
 import gregtech.api.util.GTTransferUtils;
 import gregtech.api.util.GTUtility;
 import gregtech.api.util.ItemStackHashStrategy;
+import gregtech.api.util.RelativeDirection;
 import gregtech.api.util.TextComponentUtil;
 import gregtech.api.util.TextFormattingUtil;
 import gregtech.client.renderer.ICubeRenderer;
 
 import gregtech.client.renderer.texture.Textures;
+import gregtech.common.blocks.BlockGlassCasing;
 import gregtech.common.blocks.BlockMetalCasing;
 import gregtech.common.blocks.MetaBlocks;
 
+import gregtech.common.metatileentities.MetaTileEntities;
+
+import gregtechfoodoption.block.GTFOMetaBlocks;
+
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockFlower;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.resources.I18n;
+import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.PacketBuffer;
@@ -62,6 +79,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -80,8 +98,9 @@ public class MetaTileEntityMegaApiary extends MultiblockWithDisplayBase implemen
 
     private final List<ItemStack> queenStacks = new ArrayList<>();
     private final List<ItemStack> energyCalculationStacks = new ArrayList<>();
-    private NonNullList<ItemStack> products = NonNullList.create();
-    private NonNullList<ItemStack> merged = NonNullList.create();
+
+    private final NonNullList<ItemStack> products = NonNullList.create();
+    private final NonNullList<ItemStack> merged = NonNullList.create();
 
     private EnergyContainerList energyContainer;
 
@@ -124,23 +143,82 @@ public class MetaTileEntityMegaApiary extends MultiblockWithDisplayBase implemen
 
     @Override
     protected @NotNull BlockPattern createStructurePattern() {
-        return FactoryBlockPattern.start()
-                .aisle("CCCCC", "CCCCC", "CCCCC", "CCCCC", "CCCCC")
-                .aisle("CCCCC", "C###C", "C###C", "C###C", "CCCCC")
-                .aisle("CCCCC", "C###C", "C###C", "C###C", "CCCCC")
-                .aisle("CCCCC", "C###C", "C###C", "C###C", "CCCCC")
-                .aisle("CCCCC", "CCCCC", "CCSCC", "CCCCC", "CCCCC")
-                .where('C', states(MetaBlocks.METAL_CASING.getState(BlockMetalCasing.MetalCasingType.BRONZE_BRICKS))
+        return FactoryBlockPattern.start(RelativeDirection.RIGHT, RelativeDirection.FRONT, RelativeDirection.DOWN)
+                .aisle("###############", "###############", "###############", "######HHH######", "####HHAAAHH####", "####HAPLPAH####", "###HAPAAAPAH###", "###HALAAALAH###", "###HAPAAAPAH###", "####HAPLPAH####", "####HHAAAHH####", "######HHH######", "###############", "###############", "###############")
+                .aisle("###############", "###############", "######GGG######", "####GG###GG####", "###G#######G###", "###G#######G###", "##G#########G##", "##G#########G##", "##G#########G##", "###G#######G###", "###G#######G###", "####GG###GG####", "######GGG######", "###############", "###############")
+                .aisle("###############", "######HHH######", "###HHH###HHH###", "##HG#######GH##", "##H#########H##", "##H#########H##", "#H###########H#", "#H###########H#", "#H###########H#", "##H#########H##", "##H#########H##", "##HG#######GH##", "###HHH###HHH###", "######HHH######", "###############")
+                .aisle("######GGG######", "###GGG###GGG###", "##G#########G##", "#G###########G#", "#G###########G#", "#G###########G#", "G#############G", "G#############G", "G#############G", "#G###########G#", "#G###########G#", "#G###########G#", "##G#########G##", "###GGG###GGG###", "######GGG######")
+                .aisle("######AAA######", "###OLA###ALO###", "##P#########P##", "#O###########O#", "#L###########L#", "#A###########A#", "A#############A", "A#############A", "A#############A", "#A###########A#", "#L###########L#", "#O###########O#", "##P#########P##", "###OLA###ALO###", "######AAA######")
+                .aisle("#####AAAAA#####", "###NA#####AO###", "##P#########P##", "#N###########O#", "#A###########A#", "A#############A", "A#####III#####A", "A#####III#####A", "A#####III#####A", "A#############A", "#A###########A#", "#N###########N#", "##P#########P##", "###NA#####AN###", "#####AAAAA#####")
+                .aisle("#####AAAAA#####", "###NA#FFF#AO###", "##PFF#####FFP##", "#NF########FFO#", "#AF#########FA#", "A#############A", "AF####JJJ####FA", "AF####JKJ####FA", "AF####JJJ####FA", "A#############A", "#AF#########FA#", "#NFF#######FFN#", "##PFF#####FFP##", "###NA#FFF#AN###", "#####AAAAA#####")
+                .aisle("######AAA######", "###OLAFFFALO###", "##PFFFFFFFFFP##", "#OFFFF###FFFFO#", "#LFF#######FFL#", "#AFF#FFFFF##FA#", "AFF##FKKKFF#FFA", "AFF#FFKKKFF#FFA", "AFF#FFKKKF##FFA", "#AF##FFFFF##FA#", "#LFF###FF##FFL#", "#OFFFF####FFFO#", "##PFFFFFFFFFP##", "###OLAFFFALO###", "######AAA######")
+                .aisle("######GSG######", "###GGGBBBGGG###", "##GBBFFFFFBBG##", "#GBFFF###FFBBG#", "#GBF#######FBG#", "#GFF#FFFFF##FG#", "GBF##FKKKFF#FBG", "GBF#FFKJKFF#FBG", "GBF#FFKKKF##FBG", "#GF##FFFFF##FG#", "#GBF###FF##FBG#", "#GBBFF####FBBG#", "##GBBFFFFFBBG##", "###GGGBBBGGG###", "######GGG######")
+                .aisle("######HHH######", "####HHBBBHH####", "##HHBBBBBBBHH##", "##HBBBWWWBBBH##", "#HBBWWWWWWWBBH#", "#HBBWBBBBBWWBH#", "HBBWWBBBBBBWBBH", "HBBWBBBBBBBWBBH", "HBBWBBBBBBWWBBH", "#HBWWBBBBBWWBH#", "#HBBWWWBBWWBBH#", "##HBBBWWWWBBH##", "##HHBBBBBBBHH##", "####HHBBBHH####", "######HHH######")
+                .aisle("###############", "#####GGGGG#####", "###GGGBBBBGG###", "##GBBBBBBBBBG##", "##GBBBBBBBBBG##", "#GBBBBBBBBBBBG#", "#GBBBBBBBBBBBG#", "#GBBBBBBBBBBBG#", "#GBBBBBBBBBBBG#", "#GBBBBBBBBBBBG#", "##GBBBBBBBBBG##", "##GBBBBBBBBBG##", "###GGBBBBBGG###", "#####GGGGG#####", "###############")
+                .aisle("###############", "######HHH######", "####HHBBBHH####", "###HBBBBBBBH###", "##HBBBBBBBBBH##", "##HBBBBBBBBBH##", "#HBBBBBBBBBBBH#", "#HBBBBBBBBBBBH#", "#HBBBBBBBBBBBH#", "##HBBBBBBBBBH##", "##HBBBBBBBBBH##", "###HBBBBBBBH###", "####HHBBBHH####", "######HHH######", "###############")
+                .aisle("###############", "###############", "######GGG######", "####GGBBBGG####", "###GBBBBBBBG###", "###GBBBBBBBG###", "##GBBBBBBBBBG##", "##GBBBBBBBBBG##", "##GBBBBBBBBBG##", "###GBBBBBBBG###", "###GBBBBBBBG###", "####GGBBBGG####", "######GGG######", "###############", "###############")
+                .aisle("###############", "###############", "#######H#######", "#####HHBHH#####", "####HBBBBBH####", "###HBBBBBBBH###", "###HBBBBBBBH###", "##HBBBBBBBBBH##", "###HBBBBBBBH###", "###HBBBBBBBH###", "####HBBBBBH####", "#####HHBHH#####", "#######H#######", "###############", "###############")
+                .aisle("###############", "###############", "###############", "#######G#######", "#####GGBGG#####", "####GBBBBBG####", "####GBBBBBG####", "###GBBBBBBBG###", "####GBBBBBG####", "####GBBBBBG####", "#####GGBGG#####", "#######G#######", "###############", "###############", "###############")
+                .aisle("###############", "###############", "###############", "###############", "######HHH######", "#####HHHHH#####", "####HHBBBHH####", "####HHBBBHH####", "####HHBBBHH####", "#####HHHHH#####", "######HHH######", "###############", "###############", "###############", "###############")
+                .aisle("###############", "###############", "###############", "###############", "###############", "###############", "######GGG######", "######GHG######", "######GGG######", "###############", "###############", "###############", "###############", "###############", "###############")
+                .where('A', states(MetaBlocks.TRANSPARENT_CASING.getState(BlockGlassCasing.CasingType.FUSION_GLASS)))
+                .where('B', blocks(Blocks.DIRT).or(blocks(Blocks.GRASS)))
+                .where('G', states(MetaBlocks.METAL_CASING.getState(BlockMetalCasing.MetalCasingType.BRONZE_BRICKS))
                         .or(abilities(MultiblockAbility.IMPORT_ITEMS).setMinGlobalLimited(1, 2).setMaxGlobalLimited(5))
                         .or(abilities(MultiblockAbility.EXPORT_ITEMS).setMinGlobalLimited(1, 2).setMaxGlobalLimited(5))
                         .or(abilities(MultiblockAbility.IMPORT_FLUIDS).setMaxGlobalLimited(5, 1))
                         .or(abilities(MultiblockAbility.MAINTENANCE_HATCH).setExactLimit(1))
-                        .or(abilities(MultiblockAbility.INPUT_ENERGY).setMaxGlobalLimited(4, 1))
-                        .or(abilities(MultiblockAbility.SUBSTATION_INPUT_ENERGY).setMaxGlobalLimited(4, 1))
-                        .or(abilities(MultiblockAbility.INPUT_LASER).setMaxGlobalLimited(4, 1)))
+                        .or(getEnergyInputPredicate()))
+                .where('H', getPlanks())
+                .where('I', getSlabs())
+                .where('J', blocks(ModuleApiculture.getBlocks().apiary))
+                .where('K', blocks(ModuleApiculture.getBlocks().getAlvearyBlock(BlockAlvearyType.PLAIN)))
+                .where('L', blocks(ModuleApiculture.getBlocks().getAlvearyBlock(BlockAlvearyType.HYGRO)))
+                .where('N', blocks(ModuleApiculture.getBlocks().getAlvearyBlock(BlockAlvearyType.STABILISER)))
+                .where('O', blocks(ModuleApiculture.getBlocks().getAlvearyBlock(BlockAlvearyType.HEATER)))
+                .where('P', blocks(ModuleApiculture.getBlocks().getAlvearyBlock(BlockAlvearyType.FAN)))
                 .where('S', selfPredicate())
+                .where('W', blocks(Blocks.WATER))
+                .where('F', any())
                 .where('#', any())
                 .build();
+    }
+
+    private TraceabilityPredicate getPlanks() {
+        List<Block> planks = new ArrayList<>();
+        planks.add(Blocks.PLANKS);
+        planks.add(MetaBlocks.PLANKS);
+        if (Mods.ForestryArboriculture.isModLoaded()) {
+            planks.addAll(ModuleArboriculture.getBlocks().planks);
+        }
+        if (Mods.GregTechFoodOption.isModLoaded()) {
+            planks.addAll(GTFOMetaBlocks.GTFO_PLANKS);
+        }
+
+        return blocks(planks.toArray(new Block[0]));
+    }
+
+    private TraceabilityPredicate getSlabs() {
+        List<Block> slabs = new ArrayList<>();
+        slabs.add(Blocks.WOODEN_SLAB);
+        slabs.add(MetaBlocks.WOOD_SLAB);
+        if (Mods.ForestryArboriculture.isModLoaded()) {
+            slabs.addAll(ModuleArboriculture.getBlocks().slabs);
+        }
+
+        return blocks(slabs.toArray(new Block[0]));
+    }
+
+    private TraceabilityPredicate getEnergyInputPredicate() {
+        List<MetaTileEntity> energyHatch = new ArrayList<>();
+
+        energyHatch.addAll(Arrays.asList(MetaTileEntities.ENERGY_INPUT_HATCH));
+        energyHatch.addAll(Arrays.asList(MetaTileEntities.SUBSTATION_ENERGY_INPUT_HATCH));
+        energyHatch.addAll(Arrays.asList(MetaTileEntities.LASER_INPUT_HATCH_256));
+        energyHatch.addAll(Arrays.asList(MetaTileEntities.LASER_INPUT_HATCH_1024));
+        energyHatch.addAll(Arrays.asList(MetaTileEntities.LASER_INPUT_HATCH_4096));
+
+        return metaTileEntities(energyHatch.toArray(new MetaTileEntity[0])).setMinGlobalLimited(1, 2).setMaxGlobalLimited(16);
     }
 
     @Override
@@ -152,7 +230,7 @@ public class MetaTileEntityMegaApiary extends MultiblockWithDisplayBase implemen
     @NotNull
     @Override
     protected ICubeRenderer getFrontOverlay() {
-        return Textures.ASSEMBLER_OVERLAY;
+        return GTBMTextures.INDUSTRIAL_APIARY_OVERLAY;
     }
 
     @Override
