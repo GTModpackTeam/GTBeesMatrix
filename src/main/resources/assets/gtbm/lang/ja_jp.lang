@@ -58,3 +58,6 @@ gtbm.multiblock.mega_apiary.queens=女王: %s
 gtbm.multiblock.mega_apiary.jerry_body=ローヤルゼリー: %s
 gtbm.multiblock.mega_apiary.jerry_hover=女王1匹につき、生産量がローヤルゼリー1個ごとに5%%増加する (最大 +200%%)。
 gtbm.multiblock.maga_apiary.outputs=%s: §6x%s
+
+# TOP
+gtbm.top.mega_apiary.queen=女王:

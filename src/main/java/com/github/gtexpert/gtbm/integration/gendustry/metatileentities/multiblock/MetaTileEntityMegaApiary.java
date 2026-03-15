@@ -302,6 +302,7 @@ public class MetaTileEntityMegaApiary extends MultiblockWithDisplayBase implemen
         consumeEnergy(getCurrentConsumption());
     }
 
+    // ==Setter==
     private void setConsumption() {
         long base = GTValues.V[GTValues.LuV];
         this.consumption = base * this.inputSize;
@@ -320,6 +321,7 @@ public class MetaTileEntityMegaApiary extends MultiblockWithDisplayBase implemen
         energyCalculationStacks.clear();
     }
 
+    // ==Getter==
     public long getMaxVoltage() {
         long highestVoltage = energyContainer.getHighestInputVoltage();
         if (energyContainer.getNumHighestInputContainers() > 7) {
@@ -333,12 +335,24 @@ public class MetaTileEntityMegaApiary extends MultiblockWithDisplayBase implemen
         }
     }
 
-    private int getMaxTier() {
+    public int getMaxTier() {
         return GTUtility.getTierByVoltage(getMaxVoltage());
     }
 
-    private long getCurrentConsumption() {
+    public long getCurrentConsumption() {
         return this.consumption;
+    }
+
+    public int getProgressTicks() {
+        return this.progressTicks;
+    }
+
+    public List<ItemStack> getProductList() {
+        return this.merged;
+    }
+
+    public int getQueenAmount() {
+        return queenStacks.size();
     }
 
     // ==Process==
