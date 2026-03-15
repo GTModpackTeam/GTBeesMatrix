@@ -1,3 +1,8 @@
+# v1.3.1
+- Fix Tree Farm logic [#15](https://github.com/GTModpackTeam/GTBeesMatrix/pull/15)
+
+* * *
+
 # v1.3.0
 - Multifarm Gregification [#12](https://github.com/GTModpackTeam/GTBeesMatrix/pull/12)
 - Add Industrial Apiary [#13](https://github.com/GTModpackTeam/GTBeesMatrix/pull/13)

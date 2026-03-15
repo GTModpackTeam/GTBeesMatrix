@@ -32,6 +32,10 @@ gtbm.bee.label.breeding=Breeding Progress: %s
 gtbm.bee.label.not_analyzed=§o§eInsert analyzed bee to see more info
 gtbm.bee.label.upgrade_note=§o§7Upgrade changes apply from next cycle
 
+# Multifarm
+gtbm.farm.ceu=Rubber Farm
+gtbm.farm.gtfo=Fruit Farm
+
 # GUI
 gtbm.gui.auto_breeding.tooltip.enabled=Auto-Breeding: ON/nAutomatically puts the princess back after queen death
 gtbm.gui.auto_breeding.tooltip.disabled=Auto-Breeding: OFF/nPrincess will remain in the output slot
