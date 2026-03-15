@@ -125,7 +125,7 @@ public class MetaTileEntityIndustrialApiary extends GTBMSimpleMachineMetaTileEnt
     }
 
     private int getUpgradeSlotCount() {
-        return getTier() >= gregtech.api.GTValues.LuV ? UPGRADE_SLOTS_EXTENDED : UPGRADE_SLOTS_BASE;
+        return getTier() >= GTValues.LuV ? UPGRADE_SLOTS_EXTENDED : UPGRADE_SLOTS_BASE;
     }
 
     @Override
@@ -399,10 +399,7 @@ public class MetaTileEntityIndustrialApiary extends GTBMSimpleMachineMetaTileEnt
 
     private static final int BEE_LOGIC_SYNC_ID = 1000;
 
-    /**
-     * Sync BeekeepingLogic data to client for FX rendering.
-     * Called from IndustrialApiaryLogic when active state changes.
-     */
+    /** Sync BeekeepingLogic data to client for FX rendering. */
     public void syncBeeLogicToClient() {
         IBeekeepingLogic logic = getBeekeepingLogic();
         if (logic != null && getWorld() != null && !getWorld().isRemote) {
@@ -411,16 +408,46 @@ public class MetaTileEntityIndustrialApiary extends GTBMSimpleMachineMetaTileEnt
     }
 
     @Override
-    public void receiveCustomData(int dataId, net.minecraft.network.PacketBuffer buf) {
+    public void writeInitialSyncData(@org.jetbrains.annotations.NotNull net.minecraft.network.PacketBuffer buf) {
+        super.writeInitialSyncData(buf);
+        // Include bee logic state for client FX on chunk load
+        IBeekeepingLogic logic = getBeekeepingLogic();
+        if (logic != null) {
+            buf.writeBoolean(true);
+            logic.writeData(buf);
+        } else {
+            buf.writeBoolean(false);
+        }
+    }
+
+    @Override
+    public void receiveInitialSyncData(@org.jetbrains.annotations.NotNull net.minecraft.network.PacketBuffer buf) {
+        super.receiveInitialSyncData(buf);
+        if (buf.readBoolean()) {
+            // Initialize beekeeping logic on client to receive data
+            IBeekeepingLogic logic = getBeekeepingLogic();
+            if (logic == null) {
+                getLogic().getBeeRoot(); // Force init
+                logic = getBeekeepingLogic();
+            }
+            if (logic != null) {
+                try {
+                    logic.readData(buf);
+                } catch (java.io.IOException ignored) {}
+            }
+        }
+    }
+
+    @Override
+    public void receiveCustomData(int dataId,
+                                  @org.jetbrains.annotations.NotNull net.minecraft.network.PacketBuffer buf) {
         super.receiveCustomData(dataId, buf);
         if (dataId == BEE_LOGIC_SYNC_ID) {
             IBeekeepingLogic logic = getBeekeepingLogic();
             if (logic != null) {
                 try {
                     logic.readData(buf);
-                } catch (java.io.IOException e) {
-                    // Ignore sync errors
-                }
+                } catch (java.io.IOException ignored) {}
             }
         }
     }
@@ -446,7 +473,7 @@ public class MetaTileEntityIndustrialApiary extends GTBMSimpleMachineMetaTileEnt
     public void setAutoBreeding(boolean autoBreeding) {
         this.autoBreeding = autoBreeding;
         if (autoBreeding && getQueen().isEmpty()) {
-            getLogic().tryMovePrincess();
+            getLogic().movePrincessToQueenSlot();
         }
     }
 }

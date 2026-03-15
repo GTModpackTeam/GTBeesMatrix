@@ -25,11 +25,13 @@ public class IndustrialApiaryLogic extends RecipeLogicEnergy {
     private static final int BASE_EU_PER_TICK = 80;
     private static final int PROGRESS_SYNC_TICKS = 20;
     private static final int BREEDING_TIME_TICKS = 100;
+
     private IBeeRoot beeRoot;
     private IBeekeepingLogic beekeepingLogic;
     private boolean needsMovePrincess;
     private int lastSyncedHealth = -1;
     private int progressSyncCounter;
+    private int fxTickCounter;
 
     public IndustrialApiaryLogic(@NotNull MetaTileEntity metaTileEntity, RecipeMap<?> recipeMap,
                                  Supplier<IEnergyContainer> energyContainer) {
@@ -97,6 +99,8 @@ public class IndustrialApiaryLogic extends RecipeLogicEnergy {
         }
     }
 
+    // ---- Energy & timing ----
+
     public int getEUPerTick() {
         ApiaryModifiers mods = getApiary().getModifiers();
         float energyMod = (mods != null) ? mods.energy : 1.0F;
@@ -117,29 +121,36 @@ public class IndustrialApiaryLogic extends RecipeLogicEnergy {
 
     // ---- Core tick logic ----
 
-    private int fxTickCounter;
-
     @Override
     public void update() {
         if (metaTileEntity.getWorld() == null) return;
 
+        initBeekeepingLogic();
+
         // Client-side: bee particle FX
         if (metaTileEntity.getWorld().isRemote) {
-            if (wasActiveAndNeedsUpdate) {
-                wasActiveAndNeedsUpdate = false;
-                setActive(false);
-            }
-            initBeekeepingLogic();
-            if (beekeepingLogic != null && isActive) {
-                fxTickCounter++;
-                if (fxTickCounter % 2 == 0 && beekeepingLogic.canDoBeeFX()) {
-                    beekeepingLogic.doBeeFX();
-                }
-            }
+            updateClient();
             return;
         }
 
-        initBeekeepingLogic();
+        // Server-side: bee processing
+        updateServer();
+    }
+
+    private void updateClient() {
+        if (wasActiveAndNeedsUpdate) {
+            wasActiveAndNeedsUpdate = false;
+            setActive(false);
+        }
+        if (beekeepingLogic != null && isActive) {
+            fxTickCounter++;
+            if (fxTickCounter % 2 == 0 && beekeepingLogic.canDoBeeFX()) {
+                beekeepingLogic.doBeeFX();
+            }
+        }
+    }
+
+    private void updateServer() {
         if (beekeepingLogic == null) {
             if (isActive) setActive(false);
             return;
@@ -174,26 +185,25 @@ public class IndustrialApiaryLogic extends RecipeLogicEnergy {
             hasNotEnoughEnergy = false;
         }
 
+        // Auto-move princess
         if (needsMovePrincess && apiary.getQueen().isEmpty()) {
-            doMovePrincess();
+            movePrincessToQueenSlot();
         }
 
-        // Active state
+        // Active state + FX sync
         if (isActive != isWorking) {
             setActive(isWorking);
-            // Sync bee data to client when active state changes (for FX)
-            if (isWorking) {
-                apiary.syncBeeLogicToClient();
-            }
+            apiary.syncBeeLogicToClient();
         }
         if (wasActiveAndNeedsUpdate) {
             wasActiveAndNeedsUpdate = false;
             setActive(false);
         }
 
-        // Progress (smooth tick counter)
         updateProgress(isWorking, apiary);
     }
+
+    // ---- Progress tracking ----
 
     private void updateProgress(boolean isWorking, MetaTileEntityIndustrialApiary apiary) {
         if (isWorking && !apiary.getQueen().isEmpty()) {
@@ -202,13 +212,13 @@ public class IndustrialApiaryLogic extends RecipeLogicEnergy {
                 progressTime = 0;
                 maxProgressTime = 0;
                 lastSyncedHealth = -1;
+                apiary.syncBeeLogicToClient();
             }
             if (maxProgressTime <= 0) {
                 syncProgressFromBee(apiary);
             }
 
-            // Periodic resync with actual health (every 20 ticks)
-            // Forestry's aging is probabilistic, so progress can drift
+            // Periodic resync with actual health
             progressSyncCounter++;
             if (progressSyncCounter >= PROGRESS_SYNC_TICKS && maxProgressTime > 0) {
                 progressSyncCounter = 0;
@@ -234,9 +244,7 @@ public class IndustrialApiaryLogic extends RecipeLogicEnergy {
         if (type == EnumBeeType.QUEEN) {
             IBee bee = root.getMember(apiary.getQueen());
             if (bee != null && bee.getMaxHealth() > 0 && bee.getHealth() > 0) {
-                // TOP shows 1 cycle (Next Product) duration, not total lifespan
-                int effectiveTicks = getEffectiveTicksPerHealth();
-                maxProgressTime = effectiveTicks;
+                maxProgressTime = getEffectiveTicksPerHealth();
                 progressTime = 0;
                 lastSyncedHealth = bee.getHealth();
             }
@@ -247,7 +255,6 @@ public class IndustrialApiaryLogic extends RecipeLogicEnergy {
         }
     }
 
-    /** Re-read actual bee health; reset cycle progress when health changes. */
     private void resyncIfHealthChanged(MetaTileEntityIndustrialApiary apiary) {
         IBeeRoot root = getBeeRoot();
         if (root == null || lastSyncedHealth < 0) return;
@@ -258,7 +265,8 @@ public class IndustrialApiaryLogic extends RecipeLogicEnergy {
         int currentHealth = bee.getHealth();
         if (currentHealth != lastSyncedHealth) {
             lastSyncedHealth = currentHealth;
-            progressTime = 0; // New cycle started
+            progressTime = 0;
+            apiary.syncBeeLogicToClient();
         }
     }
 
@@ -273,19 +281,16 @@ public class IndustrialApiaryLogic extends RecipeLogicEnergy {
         needsMovePrincess = true;
     }
 
-    /** Immediately attempt to move a princess from output to queen slot. */
-    public void tryMovePrincess() {
-        doMovePrincess();
-    }
-
-    private void doMovePrincess() {
-        if (beeRoot == null) return;
+    public void movePrincessToQueenSlot() {
+        IBeeRoot root = getBeeRoot();
+        if (root == null) return;
         MetaTileEntityIndustrialApiary apiary = getApiary();
-        for (int i = 0; i < apiary.getExportItems().getSlots(); i++) {
-            ItemStack stack = apiary.getExportItems().getStackInSlot(i);
-            if (!stack.isEmpty() && beeRoot.isMember(stack, EnumBeeType.PRINCESS)) {
+        var output = getOutputInventory();
+        for (int i = 0; i < output.getSlots(); i++) {
+            ItemStack stack = output.getStackInSlot(i);
+            if (!stack.isEmpty() && root.isMember(stack, EnumBeeType.PRINCESS)) {
                 apiary.setQueen(stack);
-                apiary.getExportItems().setStackInSlot(i, ItemStack.EMPTY);
+                output.setStackInSlot(i, ItemStack.EMPTY);
                 return;
             }
         }
