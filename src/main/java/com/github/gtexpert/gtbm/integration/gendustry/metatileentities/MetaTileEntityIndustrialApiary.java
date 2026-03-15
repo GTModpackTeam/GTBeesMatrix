@@ -33,10 +33,10 @@ import gregtech.client.renderer.ICubeRenderer;
 
 import com.github.gtexpert.gtbm.api.gui.GTBMGuiTextures;
 import com.github.gtexpert.gtbm.common.metatileentities.GTBMSimpleMachineMetaTileEntity;
-import com.github.gtexpert.gtbm.integration.forestry.util.ApiaryModifierBridge;
-import com.github.gtexpert.gtbm.integration.forestry.util.BeeClimateHelper;
 import com.github.gtexpert.gtbm.integration.forestry.util.BeeProductHelper;
-import com.github.gtexpert.gtbm.integration.forestry.util.WidgetBeeStatus;
+import com.github.gtexpert.gtbm.integration.gendustry.util.ApiaryModifierBridge;
+import com.github.gtexpert.gtbm.integration.gendustry.util.BeeClimateHelper;
+import com.github.gtexpert.gtbm.integration.gendustry.util.WidgetBeeStatus;
 
 import forestry.api.apiculture.*;
 import forestry.api.core.*;
@@ -49,6 +49,8 @@ public class MetaTileEntityIndustrialApiary extends GTBMSimpleMachineMetaTileEnt
     private static final int UPGRADE_SLOTS_BASE = 4;
     private static final int UPGRADE_SLOTS_EXTENDED = 8;
     private static final int OUTPUT_SLOT_COUNT = 9;
+    private static final int Y_OFFSET = 13;
+    private static final int BEE_LOGIC_SYNC_ID = 1000;
 
     private final ApiaryModifiers modifiers = new ApiaryModifiers();
     private final IErrorLogic errorLogic = new ErrorLogic();
@@ -212,8 +214,6 @@ public class MetaTileEntityIndustrialApiary extends GTBMSimpleMachineMetaTileEnt
 
     // ---- GUI ----
 
-    private static final int Y_OFFSET = 13;
-
     @Override
     protected ModularUI createUI(EntityPlayer player) {
         if (owner == null) {
@@ -227,7 +227,6 @@ public class MetaTileEntityIndustrialApiary extends GTBMSimpleMachineMetaTileEnt
         ModularUI.Builder builder = ModularUI.builder(GuiTextures.BACKGROUND, 176, 166 + Y_OFFSET);
         builder.widget(new LabelWidget(5, 5, getMetaFullName()));
 
-        // Bee slots
         builder.widget(new SlotWidget(importItems, 0, 7, 18, true, true, true)
                 .setBackgroundTexture(GuiTextures.SLOT));
         builder.widget(new ImageWidget(8, 19, 16, 16, GTBMGuiTextures.QUEEN_OVERLAY));
@@ -235,15 +234,12 @@ public class MetaTileEntityIndustrialApiary extends GTBMSimpleMachineMetaTileEnt
                 .setBackgroundTexture(GuiTextures.SLOT));
         builder.widget(new ImageWidget(8, 37, 16, 16, GTBMGuiTextures.DRONE_OVERLAY));
 
-        // Bee status
         builder.widget(new WidgetBeeStatus(8, 56, this, getLogic().getBeeRoot(), getModifiers(),
                 getLogic()::getEUPerTick));
 
-        // Progress bar
         builder.widget(new ProgressWidget(getLogic()::getBeeProgress, 60, 16, 20, 20,
                 GuiTextures.PROGRESS_BAR_ARROW, ProgressWidget.MoveType.HORIZONTAL));
 
-        // Upgrade slots (1x4 base, 2x4 for LuV+)
         int upgradeSlots = getUpgradeSlotCount();
         for (int i = 0; i < upgradeSlots; i++) {
             int col = i % 4;
@@ -254,7 +250,6 @@ public class MetaTileEntityIndustrialApiary extends GTBMSimpleMachineMetaTileEnt
                     GTBMGuiTextures.UPGRADE_OVERLAY));
         }
 
-        // Output slots
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
                 builder.widget(new SlotWidget(exportItems, j + i * 3, 116 + j * 18, 18 + i * 18,
@@ -262,7 +257,6 @@ public class MetaTileEntityIndustrialApiary extends GTBMSimpleMachineMetaTileEnt
             }
         }
 
-        // GT controls
         builder.widget(new ImageWidget(79, 42 + Y_OFFSET, 18, 18, GuiTextures.INDICATOR_NO_ENERGY)
                 .setIgnoreColor(true).setPredicate(workable::isHasNotEnoughEnergy));
         builder.widget(new ToggleButtonWidget(7, 62 + Y_OFFSET, 18, 18,
@@ -345,7 +339,7 @@ public class MetaTileEntityIndustrialApiary extends GTBMSimpleMachineMetaTileEnt
         return getWorld();
     }
 
-    // ---- IClimateProvider (delegated to BeeClimateHelper) ----
+    // ---- IClimateProvider ----
 
     @Override
     public Biome getBiome() {
@@ -391,15 +385,12 @@ public class MetaTileEntityIndustrialApiary extends GTBMSimpleMachineMetaTileEnt
 
     @Override
     public boolean addProduct(ItemStack product, boolean all) {
-        return BeeProductHelper.addProduct(product, getLogic().getBeeRoot(), modifiers,
-                autoBreeding, this, importItems, exportItems);
+        return BeeProductHelper.addProduct(product, getLogic().getBeeRoot(),
+                autoBreeding, modifiers.isAutomated, this, importItems, exportItems);
     }
 
-    // ---- Bee FX sync (server→client via GT custom data) ----
+    // ---- Bee FX sync ----
 
-    private static final int BEE_LOGIC_SYNC_ID = 1000;
-
-    /** Sync BeekeepingLogic data to client for FX rendering. */
     public void syncBeeLogicToClient() {
         IBeekeepingLogic logic = getBeekeepingLogic();
         if (logic != null && getWorld() != null && !getWorld().isRemote) {
@@ -410,7 +401,6 @@ public class MetaTileEntityIndustrialApiary extends GTBMSimpleMachineMetaTileEnt
     @Override
     public void writeInitialSyncData(@org.jetbrains.annotations.NotNull net.minecraft.network.PacketBuffer buf) {
         super.writeInitialSyncData(buf);
-        // Include bee logic state for client FX on chunk load
         IBeekeepingLogic logic = getBeekeepingLogic();
         if (logic != null) {
             buf.writeBoolean(true);
@@ -424,17 +414,7 @@ public class MetaTileEntityIndustrialApiary extends GTBMSimpleMachineMetaTileEnt
     public void receiveInitialSyncData(@org.jetbrains.annotations.NotNull net.minecraft.network.PacketBuffer buf) {
         super.receiveInitialSyncData(buf);
         if (buf.readBoolean()) {
-            // Initialize beekeeping logic on client to receive data
-            IBeekeepingLogic logic = getBeekeepingLogic();
-            if (logic == null) {
-                getLogic().getBeeRoot(); // Force init
-                logic = getBeekeepingLogic();
-            }
-            if (logic != null) {
-                try {
-                    logic.readData(buf);
-                } catch (java.io.IOException ignored) {}
-            }
+            readBeeLogicData(buf);
         }
     }
 
@@ -443,13 +423,20 @@ public class MetaTileEntityIndustrialApiary extends GTBMSimpleMachineMetaTileEnt
                                   @org.jetbrains.annotations.NotNull net.minecraft.network.PacketBuffer buf) {
         super.receiveCustomData(dataId, buf);
         if (dataId == BEE_LOGIC_SYNC_ID) {
-            IBeekeepingLogic logic = getBeekeepingLogic();
-            if (logic != null) {
-                try {
-                    logic.readData(buf);
-                } catch (java.io.IOException ignored) {}
-            }
+            readBeeLogicData(buf);
         }
+    }
+
+    private void readBeeLogicData(net.minecraft.network.PacketBuffer buf) {
+        getLogic().initBeekeepingLogicClient();
+        IBeekeepingLogic logic = getBeekeepingLogic();
+        try {
+            if (logic != null) {
+                logic.readData(buf);
+            } else {
+                buf.readBytes(buf.readableBytes());
+            }
+        } catch (java.io.IOException ignored) {}
     }
 
     // ---- Accessors ----

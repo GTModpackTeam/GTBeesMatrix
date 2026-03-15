@@ -1,4 +1,4 @@
-package com.github.gtexpert.gtbm.integration.forestry.util;
+package com.github.gtexpert.gtbm.integration.gendustry.util;
 
 import javax.annotation.Nullable;
 
@@ -18,6 +18,11 @@ public class ApiaryModifierBridge extends DefaultBeeModifier {
 
     protected final ApiaryModifiers modifiers;
 
+    /**
+     * Creates a new bridge wrapping the given modifiers.
+     *
+     * @param modifiers the Gendustry apiary modifiers to delegate to
+     */
     public ApiaryModifierBridge(ApiaryModifiers modifiers) {
         this.modifiers = modifiers;
     }

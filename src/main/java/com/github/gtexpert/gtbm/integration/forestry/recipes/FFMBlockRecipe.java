@@ -1,7 +1,7 @@
 package com.github.gtexpert.gtbm.integration.forestry.recipes;
 
-import static com.github.gtexpert.gtbm.integration.forestry.ForestryUtility.feToEu;
-import static com.github.gtexpert.gtbm.integration.forestry.ForestryUtility.timeCarpenter;
+import static com.github.gtexpert.gtbm.integration.forestry.util.ForestryRecipeHelper.feToEu;
+import static com.github.gtexpert.gtbm.integration.forestry.util.ForestryRecipeHelper.timeCarpenter;
 import static forestry.farming.ModuleFarming.getBlocks;
 import static gregtech.api.unification.ore.OrePrefix.*;
 

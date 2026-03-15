@@ -11,7 +11,7 @@ import gregtech.api.unification.material.Materials;
 import gregtech.api.util.GTUtility;
 
 import com.github.gtexpert.gtbm.api.util.Mods;
-import com.github.gtexpert.gtbm.integration.forestry.ForestryUtility;
+import com.github.gtexpert.gtbm.integration.forestry.util.ForestryRecipeHelper;
 
 import binnie.extratrees.wood.EnumETLog;
 import forestry.api.arboriculture.*;
@@ -57,7 +57,7 @@ public class FabricatorLoader {
                 .inputs(Mods.Forestry.getItem("refractory_wax", 4))
                 .fluidInputs(Materials.Glass.getFluid(500))
                 .outputs(GTUtility.copy(5, planksFireproof))
-                .EUt(10).duration(ForestryUtility.timeFabricator(10)).buildAndRegister();
+                .EUt(10).duration(ForestryRecipeHelper.timeFabricator(10)).buildAndRegister();
     }
 
     public static void registerFireproofLogsRecipe(ItemStack logs, ItemStack logsFireproof) {
@@ -66,6 +66,6 @@ public class FabricatorLoader {
                 .inputs(Mods.Forestry.getItem("refractory_wax", 4))
                 .fluidInputs(Materials.Glass.getFluid(500))
                 .outputs(logsFireproof)
-                .EUt(10).duration(ForestryUtility.timeFabricator(10)).buildAndRegister();
+                .EUt(10).duration(ForestryRecipeHelper.timeFabricator(10)).buildAndRegister();
     }
 }

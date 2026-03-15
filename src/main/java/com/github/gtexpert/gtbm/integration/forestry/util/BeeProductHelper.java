@@ -1,6 +1,5 @@
 package com.github.gtexpert.gtbm.integration.forestry.util;
 
-import net.bdew.gendustry.api.ApiaryModifiers;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.items.IItemHandlerModifiable;
 
@@ -20,22 +19,22 @@ public class BeeProductHelper {
      *
      * @param product      the product to add
      * @param beeRoot      the bee root (nullable, skips automation if null)
-     * @param modifiers    the apiary modifiers (checks isAutomated)
-     * @param autoBreeding whether auto-breeding is enabled (GT toggle button)
+     * @param autoBreeding whether auto-breeding is enabled (princess auto-insertion)
+     * @param isAutomated  whether automation upgrade is active (drone auto-insertion)
      * @param beeInv       the bee housing inventory (queen/drone access)
      * @param importItems  the import item handler (for drone merging)
      * @param exportItems  the export item handler (output slots)
      * @return true if the product was fully inserted
      */
-    public static boolean addProduct(ItemStack product, IBeeRoot beeRoot, ApiaryModifiers modifiers,
-                                     boolean autoBreeding, IBeeHousingInventory beeInv,
+    public static boolean addProduct(ItemStack product, IBeeRoot beeRoot,
+                                     boolean autoBreeding, boolean isAutomated,
+                                     IBeeHousingInventory beeInv,
                                      IItemHandlerModifiable importItems, IItemHandlerModifiable exportItems) {
         if (product.isEmpty()) return true;
 
         ItemStack remaining = product.copy();
 
         if (beeRoot != null && beeRoot.isMember(remaining)) {
-            // Princess/Queen auto-insertion: controlled by autoBreeding button (master switch)
             if (autoBreeding && (beeRoot.isMember(remaining, EnumBeeType.PRINCESS) ||
                     beeRoot.isMember(remaining, EnumBeeType.QUEEN))) {
                 if (beeInv.getQueen().isEmpty()) {
@@ -43,8 +42,7 @@ public class BeeProductHelper {
                     return true;
                 }
             }
-            // Drone auto-insertion: controlled by automation upgrade OR autoBreeding
-            if ((autoBreeding || modifiers.isAutomated) && beeRoot.isMember(remaining, EnumBeeType.DRONE)) {
+            if ((autoBreeding || isAutomated) && beeRoot.isMember(remaining, EnumBeeType.DRONE)) {
                 if (beeInv.getDrone().isEmpty()) {
                     beeInv.setDrone(remaining);
                     return true;
@@ -55,7 +53,6 @@ public class BeeProductHelper {
             }
         }
 
-        // Try to add to output slots
         for (int i = 0; i < exportItems.getSlots(); i++) {
             remaining = exportItems.insertItem(i, remaining, false);
             if (remaining.isEmpty()) return true;

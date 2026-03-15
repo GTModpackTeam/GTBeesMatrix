@@ -14,10 +14,9 @@ import gregtech.api.capability.impl.RecipeLogicEnergy;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.recipes.RecipeMap;
 
-import com.github.gtexpert.gtbm.integration.forestry.ForestryUtility;
+import com.github.gtexpert.gtbm.integration.forestry.util.ForestryBeeHelper;
 
 import forestry.api.apiculture.*;
-import forestry.api.genetics.AlleleManager;
 import forestry.core.errors.EnumErrorCode;
 
 public class IndustrialApiaryLogic extends RecipeLogicEnergy {
@@ -42,11 +41,9 @@ public class IndustrialApiaryLogic extends RecipeLogicEnergy {
         return (MetaTileEntityIndustrialApiary) metaTileEntity;
     }
 
-    // ---- Bee system initialization ----
-
     public IBeeRoot getBeeRoot() {
         if (beeRoot == null) {
-            beeRoot = (IBeeRoot) AlleleManager.alleleRegistry.getSpeciesRoot("rootBees");
+            beeRoot = BeeManager.beeRoot;
         }
         return beeRoot;
     }
@@ -60,11 +57,13 @@ public class IndustrialApiaryLogic extends RecipeLogicEnergy {
         }
     }
 
+    public void initBeekeepingLogicClient() {
+        initBeekeepingLogic();
+    }
+
     public IBeekeepingLogic getBeekeepingLogic() {
         return beekeepingLogic;
     }
-
-    // ---- Modifier management ----
 
     public void updateModifiers() {
         MetaTileEntityIndustrialApiary apiary = getApiary();
@@ -74,7 +73,6 @@ public class IndustrialApiaryLogic extends RecipeLogicEnergy {
         var upgradeInventory = apiary.getUpgradeInventory();
         if (upgradeInventory == null) return;
 
-        // Reset modifiers to defaults
         mods.territory = 1;
         mods.mutation = 1;
         mods.lifespan = 1;
@@ -99,8 +97,6 @@ public class IndustrialApiaryLogic extends RecipeLogicEnergy {
         }
     }
 
-    // ---- Energy & timing ----
-
     public int getEUPerTick() {
         ApiaryModifiers mods = getApiary().getModifiers();
         float energyMod = (mods != null) ? mods.energy : 1.0F;
@@ -110,7 +106,7 @@ public class IndustrialApiaryLogic extends RecipeLogicEnergy {
     public int getEffectiveTicksPerHealth() {
         ApiaryModifiers mods = getApiary().getModifiers();
         float lifespanMod = (mods != null) ? mods.lifespan : 1.0F;
-        return ForestryUtility.getEffectiveTicksPerHealth(lifespanMod);
+        return ForestryBeeHelper.getEffectiveTicksPerHealth(lifespanMod);
     }
 
     public int getCycleTickCounter() {
@@ -119,21 +115,17 @@ public class IndustrialApiaryLogic extends RecipeLogicEnergy {
         return effectiveTicks > 0 ? (progressTime % effectiveTicks) : 0;
     }
 
-    // ---- Core tick logic ----
-
     @Override
     public void update() {
         if (metaTileEntity.getWorld() == null) return;
 
         initBeekeepingLogic();
 
-        // Client-side: bee particle FX
         if (metaTileEntity.getWorld().isRemote) {
             updateClient();
             return;
         }
 
-        // Server-side: bee processing
         updateServer();
     }
 
@@ -164,7 +156,7 @@ public class IndustrialApiaryLogic extends RecipeLogicEnergy {
         int euPerTick = getEUPerTick();
         boolean hasPower = getEnergyStored() >= euPerTick;
 
-        // canWork() clears errors internally, so set power error AFTER
+        // canWork() clears errorLogic internally, so power error must be set AFTER
         boolean canWork = beekeepingLogic.canWork();
         apiary.getErrorLogic().setCondition(!hasPower, EnumErrorCode.NO_POWER);
 
@@ -178,19 +170,16 @@ public class IndustrialApiaryLogic extends RecipeLogicEnergy {
             recipeEUt = 0;
         }
 
-        // GT energy indicator
         if (canWork && workingEnabled && !hasPower) {
             hasNotEnoughEnergy = true;
         } else if (hasNotEnoughEnergy && getEnergyInputPerSecond() > 19L * euPerTick) {
             hasNotEnoughEnergy = false;
         }
 
-        // Auto-move princess
         if (needsMovePrincess && apiary.getQueen().isEmpty()) {
             movePrincessToQueenSlot();
         }
 
-        // Active state + FX sync
         if (isActive != isWorking) {
             setActive(isWorking);
             apiary.syncBeeLogicToClient();
@@ -203,11 +192,8 @@ public class IndustrialApiaryLogic extends RecipeLogicEnergy {
         updateProgress(isWorking, apiary);
     }
 
-    // ---- Progress tracking ----
-
     private void updateProgress(boolean isWorking, MetaTileEntityIndustrialApiary apiary) {
         if (isWorking && !apiary.getQueen().isEmpty()) {
-            // Reset when progress completes (handles princess→queen transition)
             if (maxProgressTime > 0 && progressTime >= maxProgressTime) {
                 progressTime = 0;
                 maxProgressTime = 0;
@@ -218,7 +204,6 @@ public class IndustrialApiaryLogic extends RecipeLogicEnergy {
                 syncProgressFromBee(apiary);
             }
 
-            // Periodic resync with actual health
             progressSyncCounter++;
             if (progressSyncCounter >= PROGRESS_SYNC_TICKS && maxProgressTime > 0) {
                 progressSyncCounter = 0;
@@ -255,6 +240,7 @@ public class IndustrialApiaryLogic extends RecipeLogicEnergy {
         }
     }
 
+    /** Resync progress when Forestry's probabilistic aging changes health. */
     private void resyncIfHealthChanged(MetaTileEntityIndustrialApiary apiary) {
         IBeeRoot root = getBeeRoot();
         if (root == null || lastSyncedHealth < 0) return;
@@ -275,8 +261,6 @@ public class IndustrialApiaryLogic extends RecipeLogicEnergy {
         return (float) progressTime / maxProgressTime;
     }
 
-    // ---- Princess auto-move ----
-
     public void setNeedsMovePrincess() {
         needsMovePrincess = true;
     }
@@ -296,16 +280,13 @@ public class IndustrialApiaryLogic extends RecipeLogicEnergy {
         }
     }
 
-    // ---- Override recipe logic (no-op) ----
-
     @Override
     protected void trySearchNewRecipe() {}
 
     @Override
     protected void updateRecipeProgress() {}
 
-    // ---- NBT ----
-
+    /** Ensure itemOutputs/fluidOutputs are non-null for parent serialization. */
     @Override
     public NBTTagCompound serializeNBT() {
         if (itemOutputs == null) {

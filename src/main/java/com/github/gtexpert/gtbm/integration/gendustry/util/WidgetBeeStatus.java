@@ -1,4 +1,4 @@
-package com.github.gtexpert.gtbm.integration.forestry.util;
+package com.github.gtexpert.gtbm.integration.gendustry.util;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,6 +50,16 @@ public class WidgetBeeStatus extends Widget {
     private int lastErrorHash = Integer.MIN_VALUE;
     private int syncTickCounter;
 
+    /**
+     * Creates a bee status widget at the given GUI position.
+     *
+     * @param x                 the x position in the GUI
+     * @param y                 the y position in the GUI
+     * @param housing           the bee housing to monitor
+     * @param beeRoot           the Forestry bee root for bee type lookups
+     * @param modifiers         the Gendustry apiary modifiers for stat display
+     * @param euPerTickSupplier supplier for the current EU/t consumption
+     */
     public WidgetBeeStatus(int x, int y, IBeeHousing housing, IBeeRoot beeRoot, ApiaryModifiers modifiers,
                            IntSupplier euPerTickSupplier) {
         super(new Position(x, y), new Size(16, 16));
