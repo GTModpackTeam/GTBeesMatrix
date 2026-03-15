@@ -47,7 +47,8 @@ import forestry.core.errors.ErrorLogic;
 public class MetaTileEntityIndustrialApiary extends GTBMSimpleMachineMetaTileEntity
                                             implements IBeeHousing, IBeeHousingInventory {
 
-    private static final int UPGRADE_SLOT_COUNT = 4;
+    private static final int UPGRADE_SLOTS_BASE = 4;
+    private static final int UPGRADE_SLOTS_EXTENDED = 8;
     private static final int OUTPUT_SLOT_COUNT = 9;
 
     private final ApiaryModifiers modifiers = new ApiaryModifiers();
@@ -79,7 +80,7 @@ public class MetaTileEntityIndustrialApiary extends GTBMSimpleMachineMetaTileEnt
     };
     private IItemHandlerModifiable upgradeInventory;
     private GameProfile owner;
-    private boolean autoBreeding = true;
+    private boolean autoBreeding = false;
 
     public MetaTileEntityIndustrialApiary(ResourceLocation metaTileEntityId, RecipeMap<?> recipeMap,
                                           ICubeRenderer renderer, int tier, boolean hasFrontFacing,
@@ -124,10 +125,14 @@ public class MetaTileEntityIndustrialApiary extends GTBMSimpleMachineMetaTileEnt
         return new NotifiableItemStackHandler(this, OUTPUT_SLOT_COUNT, this, true);
     }
 
+    private int getUpgradeSlotCount() {
+        return getTier() >= gregtech.api.GTValues.LuV ? UPGRADE_SLOTS_EXTENDED : UPGRADE_SLOTS_BASE;
+    }
+
     @Override
     protected void initializeInventory() {
         super.initializeInventory();
-        this.upgradeInventory = new ItemStackHandler(UPGRADE_SLOT_COUNT) {
+        this.upgradeInventory = new ItemStackHandler(getUpgradeSlotCount()) {
 
             @Override
             public boolean isItemValid(int slot, @org.jetbrains.annotations.NotNull ItemStack stack) {
@@ -239,17 +244,21 @@ public class MetaTileEntityIndustrialApiary extends GTBMSimpleMachineMetaTileEnt
         builder.widget(new ProgressWidget(getLogic()::getBeeProgress, 60, 16, 20, 20,
                 GuiTextures.PROGRESS_BAR_ARROW, ProgressWidget.MoveType.HORIZONTAL));
 
-        // Upgrade slots
-        for (int i = 0; i < UPGRADE_SLOT_COUNT; i++) {
-            builder.widget(new SlotWidget(upgradeInventory, i, 34 + i * 18, 36, true, true, true)
-                    .setBackgroundTexture(GuiTextures.SLOT));
-            builder.widget(new ImageWidget(35 + i * 18, 37, 16, 16, GTBMGuiTextures.UPGRADE_OVERLAY));
+        // Upgrade slots (1x4 base, 2x4 for LuV+)
+        int upgradeSlots = getUpgradeSlotCount();
+        for (int i = 0; i < upgradeSlots; i++) {
+            int col = i % 4;
+            int row = i / 4;
+            builder.widget(new SlotWidget(upgradeInventory, i, 34 + col * 18, 36 + row * 18,
+                    true, true, true).setBackgroundTexture(GuiTextures.SLOT));
+            builder.widget(new ImageWidget(35 + col * 18, 37 + row * 18, 16, 16,
+                    GTBMGuiTextures.UPGRADE_OVERLAY));
         }
 
         // Output slots
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
-                builder.widget(new SlotWidget(exportItems, j + i * 3, 115 + j * 18, 18 + i * 18,
+                builder.widget(new SlotWidget(exportItems, j + i * 3, 116 + j * 18, 18 + i * 18,
                         true, false, false).setBackgroundTexture(GuiTextures.SLOT));
             }
         }
