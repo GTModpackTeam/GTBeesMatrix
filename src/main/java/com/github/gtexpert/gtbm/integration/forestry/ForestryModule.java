@@ -1,7 +1,5 @@
 package com.github.gtexpert.gtbm.integration.forestry;
 
-import com.github.gtexpert.gtbm.integration.forestry.metatileentites.ForestryMetaTileEntities;
-
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
@@ -49,6 +47,5 @@ public class ForestryModule extends GTBMIntegrationSubmodule {
     @Override
     public void registerRecipesNormal(RegistryEvent.Register<IRecipe> event) {
         FFMOreDictionaryLoader.init();
-        ForestryMetaTileEntities.init();
     }
 }

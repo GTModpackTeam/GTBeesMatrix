@@ -1,4 +1,4 @@
-package com.github.gtexpert.gtbm.integration.forestry.metatileentites.multiblock.electric.megaapiary;
+package com.github.gtexpert.gtbm.integration.gendustry.metatileentities.multiblock;
 
 import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
@@ -7,7 +7,6 @@ import codechicken.lib.vec.Matrix4;
 import com.github.gtexpert.gtbm.api.util.Mods;
 import com.github.gtexpert.gtbm.client.GTBMTextures;
 import forestry.api.apiculture.BeeManager;
-import forestry.api.apiculture.FlowerManager;
 import forestry.api.apiculture.IAlleleBeeSpecies;
 import forestry.api.apiculture.IBeeGenome;
 
@@ -56,9 +55,6 @@ import gregtech.common.metatileentities.MetaTileEntities;
 import gregtechfoodoption.block.GTFOMetaBlocks;
 
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockFlower;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.resources.I18n;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
