@@ -235,6 +235,8 @@ public class MetaTileEntityMegaApiary extends MultiblockWithDisplayBase implemen
         List<MetaTileEntity> energyHatch = new ArrayList<>();
 
         energyHatch.addAll(Arrays.asList(MetaTileEntities.ENERGY_INPUT_HATCH));
+        energyHatch.addAll(Arrays.asList(MetaTileEntities.ENERGY_INPUT_HATCH_4A));
+        energyHatch.addAll(Arrays.asList(MetaTileEntities.ENERGY_INPUT_HATCH_16A));
         energyHatch.addAll(Arrays.asList(MetaTileEntities.SUBSTATION_ENERGY_INPUT_HATCH));
         energyHatch.addAll(Arrays.asList(MetaTileEntities.LASER_INPUT_HATCH_256));
         energyHatch.addAll(Arrays.asList(MetaTileEntities.LASER_INPUT_HATCH_1024));
@@ -320,7 +322,10 @@ public class MetaTileEntityMegaApiary extends MultiblockWithDisplayBase implemen
 
     public long getMaxVoltage() {
         long highestVoltage = energyContainer.getHighestInputVoltage();
-        if (energyContainer.getNumHighestInputContainers() > 1) {
+        if (energyContainer.getNumHighestInputContainers() > 7) {
+            int tier = GTUtility.getTierByVoltage(highestVoltage);
+            return GTValues.V[Math.min(tier + 2, GTValues.MAX)];
+        } else if (energyContainer.getNumHighestInputContainers() > 1) {
             int tier = GTUtility.getTierByVoltage(highestVoltage);
             return GTValues.V[Math.min(tier + 1, GTValues.MAX)];
         } else {
