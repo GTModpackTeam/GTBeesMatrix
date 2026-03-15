@@ -117,12 +117,24 @@ public class IndustrialApiaryLogic extends RecipeLogicEnergy {
 
     // ---- Core tick logic ----
 
+    private int fxTickCounter;
+
     @Override
     public void update() {
-        if (metaTileEntity.getWorld() == null || metaTileEntity.getWorld().isRemote) {
+        if (metaTileEntity.getWorld() == null) return;
+
+        // Client-side: bee particle FX
+        if (metaTileEntity.getWorld().isRemote) {
             if (wasActiveAndNeedsUpdate) {
                 wasActiveAndNeedsUpdate = false;
                 setActive(false);
+            }
+            initBeekeepingLogic();
+            if (beekeepingLogic != null && isActive) {
+                fxTickCounter++;
+                if (fxTickCounter % 2 == 0 && beekeepingLogic.canDoBeeFX()) {
+                    beekeepingLogic.doBeeFX();
+                }
             }
             return;
         }
@@ -169,6 +181,10 @@ public class IndustrialApiaryLogic extends RecipeLogicEnergy {
         // Active state
         if (isActive != isWorking) {
             setActive(isWorking);
+            // Sync bee data to client when active state changes (for FX)
+            if (isWorking) {
+                apiary.syncBeeLogicToClient();
+            }
         }
         if (wasActiveAndNeedsUpdate) {
             wasActiveAndNeedsUpdate = false;

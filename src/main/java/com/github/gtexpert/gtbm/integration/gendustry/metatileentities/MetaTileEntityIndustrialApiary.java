@@ -395,6 +395,36 @@ public class MetaTileEntityIndustrialApiary extends GTBMSimpleMachineMetaTileEnt
                 autoBreeding, this, importItems, exportItems);
     }
 
+    // ---- Bee FX sync (server→client via GT custom data) ----
+
+    private static final int BEE_LOGIC_SYNC_ID = 1000;
+
+    /**
+     * Sync BeekeepingLogic data to client for FX rendering.
+     * Called from IndustrialApiaryLogic when active state changes.
+     */
+    public void syncBeeLogicToClient() {
+        IBeekeepingLogic logic = getBeekeepingLogic();
+        if (logic != null && getWorld() != null && !getWorld().isRemote) {
+            writeCustomData(BEE_LOGIC_SYNC_ID, buf -> logic.writeData(buf));
+        }
+    }
+
+    @Override
+    public void receiveCustomData(int dataId, net.minecraft.network.PacketBuffer buf) {
+        super.receiveCustomData(dataId, buf);
+        if (dataId == BEE_LOGIC_SYNC_ID) {
+            IBeekeepingLogic logic = getBeekeepingLogic();
+            if (logic != null) {
+                try {
+                    logic.readData(buf);
+                } catch (java.io.IOException e) {
+                    // Ignore sync errors
+                }
+            }
+        }
+    }
+
     // ---- Accessors ----
 
     protected IndustrialApiaryLogic getLogic() {
