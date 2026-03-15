@@ -6,7 +6,7 @@ import gregtech.common.blocks.MetaBlocks;
 import gregtech.common.items.MetaItems;
 
 import com.github.gtexpert.gtbm.integration.forestry.farming.FarmLogicCEu;
-import com.github.gtexpert.gtbm.integration.forestry.farming.FarmableGTRubberSapling;
+import com.github.gtexpert.gtbm.integration.forestry.farming.FarmableGTCEuSapling;
 import com.github.gtexpert.gtbm.integration.forestry.util.ForestryFarmHelper;
 
 import forestry.api.core.ForestryAPI;
@@ -26,7 +26,7 @@ public class FFMFarmingLoader {
         String rubberId = "farmCEu.rubber";
         ceuFarm.registerFarmables(rubberId);
         farmRegistry.registerFarmables(rubberId,
-                new FarmableGTRubberSapling(MetaBlocks.RUBBER_SAPLING,
+                new FarmableGTCEuSapling(MetaBlocks.RUBBER_SAPLING,
                         new ItemStack[] { MetaItems.STICKY_RESIN.getStackForm() }));
 
         // GregTech Fertilizer

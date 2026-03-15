@@ -22,13 +22,13 @@ import forestry.core.network.packets.PacketFXSignal;
 import forestry.core.utils.NetworkUtil;
 import forestry.farming.logic.crops.CropDestroy;
 
-public class FarmableGTRubberSapling implements IFarmable {
+public class FarmableGTCEuSapling implements IFarmable {
 
     private final Block saplingBlock;
     private final ItemStack germling;
     private final ItemStack[] windfall;
 
-    public FarmableGTRubberSapling(Block saplingBlock, ItemStack[] windfall) {
+    public FarmableGTCEuSapling(Block saplingBlock, ItemStack[] windfall) {
         this.saplingBlock = saplingBlock;
         this.germling = new ItemStack(saplingBlock);
         this.windfall = windfall;
@@ -72,18 +72,22 @@ public class FarmableGTRubberSapling implements IFarmable {
 
     @Override
     public boolean plantSaplingAt(EntityPlayer player, ItemStack germling, World world, BlockPos pos) {
-        ItemStack copy = germling.copy();
-        player.setHeldItem(EnumHand.MAIN_HAND, copy);
-        EnumActionResult result = copy.onItemUse(player, world, pos.down(),
-                EnumHand.MAIN_HAND, EnumFacing.UP, 0, 0, 0);
-        player.setHeldItem(EnumHand.MAIN_HAND, ItemStack.EMPTY);
-        if (result == EnumActionResult.SUCCESS) {
-            PacketFXSignal packet = new PacketFXSignal(
-                    PacketFXSignal.SoundFXType.BLOCK_PLACE, pos,
-                    Blocks.SAPLING.getDefaultState());
-            NetworkUtil.sendNetworkPacket(packet, pos, world);
-            return true;
+        ItemStack originalHeldItem = player.getHeldItem(EnumHand.MAIN_HAND);
+        try {
+            ItemStack copy = germling.copy();
+            player.setHeldItem(EnumHand.MAIN_HAND, copy);
+            EnumActionResult result = copy.onItemUse(player, world, pos.down(),
+                    EnumHand.MAIN_HAND, EnumFacing.UP, 0, 0, 0);
+            if (result == EnumActionResult.SUCCESS) {
+                PacketFXSignal packet = new PacketFXSignal(
+                        PacketFXSignal.SoundFXType.BLOCK_PLACE, pos,
+                        Blocks.SAPLING.getDefaultState());
+                NetworkUtil.sendNetworkPacket(packet, pos, world);
+                return true;
+            }
+            return false;
+        } finally {
+            player.setHeldItem(EnumHand.MAIN_HAND, originalHeldItem);
         }
-        return false;
     }
 }
