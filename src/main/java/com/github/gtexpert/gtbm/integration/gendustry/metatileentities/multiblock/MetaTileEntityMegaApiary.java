@@ -14,6 +14,7 @@ import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.SoundEvent;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
@@ -55,6 +56,7 @@ import gregtech.common.blocks.BlockGlassCasing;
 import gregtech.common.blocks.BlockMetalCasing;
 import gregtech.common.blocks.MetaBlocks;
 import gregtech.common.metatileentities.MetaTileEntities;
+import gregtech.core.sound.GTSoundEvents;
 import gregtechfoodoption.block.GTFOMetaBlocks;
 
 import com.github.gtexpert.gtbm.api.util.Mods;
@@ -261,28 +263,30 @@ public class MetaTileEntityMegaApiary extends MultiblockWithDisplayBase implemen
     @Override
     public void renderMetaTileEntity(CCRenderState renderState, Matrix4 translation, IVertexOperation[] pipeline) {
         super.renderMetaTileEntity(renderState, translation, pipeline);
-        getFrontOverlay().renderOrientedState(renderState, translation, pipeline, getFrontFacing(), isActive(),
-                isWorkingEnabled);
+        getFrontOverlay().renderOrientedState(renderState, translation, pipeline, getFrontFacing(), this.isActive(),
+                this.isWorkingEnabled);
     }
 
     @Override
     public void update() {
         super.update();
-        if (this.getWorld().isRemote || energyContainer == null || !isWorkingEnabled) {
+        if (this.getWorld().isRemote || energyContainer == null || !this.isWorkingEnabled) {
             return;
         }
 
         if (!canWork()) {
-            isWorking = false;
+            this.isWorking = false;
+            setActive(false);
             progressTicks = 0;
             consumeEnergy(getCurrentConsumption());
             resetConsumption();
             return;
         }
 
-        if (!isWorking) {
+        if (!this.isWorking) {
             if (canStartProcess()) {
-                isWorking = true;
+                this.isWorking = true;
+                setActive(true);
                 progressTicks = 0;
             }
             consumeEnergy(getCurrentConsumption());
@@ -296,7 +300,8 @@ public class MetaTileEntityMegaApiary extends MultiblockWithDisplayBase implemen
             outputProducts();
 
             if (!canStartProcess()) {
-                isWorking = false;
+                this.isWorking = false;
+                setActive(false);
             }
         }
         consumeEnergy(getCurrentConsumption());
@@ -591,7 +596,17 @@ public class MetaTileEntityMegaApiary extends MultiblockWithDisplayBase implemen
 
     @Override
     public boolean isActive() {
-        return isWorking && isWorkingEnabled;
+        return super.isActive() && this.isWorking;
+    }
+
+    public void setActive(boolean working) {
+        if (this.isWorking != working) {
+            this.isWorking = working;
+            markDirty();
+            if (getWorld() != null && !getWorld().isRemote) {
+                writeCustomData(GregtechDataCodes.WORKABLE_ACTIVE, buf -> buf.writeBoolean(working));
+            }
+        }
     }
 
     @Override
@@ -653,6 +668,12 @@ public class MetaTileEntityMegaApiary extends MultiblockWithDisplayBase implemen
             this.isWorkingEnabled = buf.readBoolean();
             scheduleRenderUpdate();
         }
+    }
+
+    @SideOnly(Side.CLIENT)
+    @Override
+    public SoundEvent getSound() {
+        return GTSoundEvents.ARC;
     }
 
     @Override
