@@ -9,15 +9,15 @@ import gregtech.api.unification.stack.UnificationEntry;
 
 import com.github.gtexpert.gtbm.api.util.Mods;
 import com.github.gtexpert.gtbm.integration.forestry.ForestryConfigHolder;
-import com.github.gtexpert.gtbm.integration.forestry.ForestryUtility;
 import com.github.gtexpert.gtbm.integration.forestry.recipes.machines.CarpenterLoader;
+import com.github.gtexpert.gtbm.integration.forestry.util.ForestryRecipeHelper;
 
 import forestry.api.recipes.RecipeManagers;
 
 public class ExtraTreesItemsRecipe {
 
     public static void init() {
-        Enum<ForestryUtility.recipeMode> recipeMode = ForestryUtility.recipeMode
+        Enum<ForestryRecipeHelper.RecipeMode> recipeMode = ForestryRecipeHelper.RecipeMode
                 .safeValueOf(ForestryConfigHolder.gameMode);
 
         // Arborist Database
@@ -30,7 +30,7 @@ public class ExtraTreesItemsRecipe {
                 Mods.ExtraTrees.getItem("databaselepi"),
                 Mods.ExtraTrees.getItem("databaselepi"));
 
-        if (recipeMode == ForestryUtility.recipeMode.HARD) {
+        if (recipeMode == ForestryRecipeHelper.RecipeMode.HARD) {
             // Arborist Database
             CarpenterLoader.removeCarpenterRecipe(Mods.ExtraTrees.getItem("databasetree"));
             RecipeManagers.carpenterManager.addRecipe(

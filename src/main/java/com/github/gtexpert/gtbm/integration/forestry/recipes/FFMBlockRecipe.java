@@ -1,7 +1,7 @@
 package com.github.gtexpert.gtbm.integration.forestry.recipes;
 
-import static com.github.gtexpert.gtbm.integration.forestry.ForestryUtility.feToEu;
-import static com.github.gtexpert.gtbm.integration.forestry.ForestryUtility.timeCarpenter;
+import static com.github.gtexpert.gtbm.integration.forestry.util.ForestryRecipeHelper.feToEu;
+import static com.github.gtexpert.gtbm.integration.forestry.util.ForestryRecipeHelper.timeCarpenter;
 import static forestry.farming.ModuleFarming.getBlocks;
 import static gregtech.api.unification.ore.OrePrefix.*;
 
@@ -19,6 +19,7 @@ import gregtech.common.ConfigHolder;
 import gregtech.common.items.MetaItems;
 
 import com.github.gtexpert.gtbm.api.util.Mods;
+import com.github.gtexpert.gtbm.integration.forestry.ForestryConfigHolder;
 
 import forestry.core.ModuleCore;
 import forestry.core.items.EnumElectronTube;
@@ -69,6 +70,8 @@ public class FFMBlockRecipe {
     }
 
     public static void farm() {
+        if (!ForestryConfigHolder.farmBlock) return;
+
         BlockRegistryFarming blocks = getBlocks();
 
         ItemStack basic = blocks.farm.get(EnumFarmBlockType.PLAIN, 1);
