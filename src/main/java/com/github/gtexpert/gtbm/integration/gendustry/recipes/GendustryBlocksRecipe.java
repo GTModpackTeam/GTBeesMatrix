@@ -1,16 +1,13 @@
 package com.github.gtexpert.gtbm.integration.gendustry.recipes;
 
-import static gregtech.api.unification.ore.OrePrefix.*;
+import static gregtech.loaders.recipe.CraftingComponent.*;
 
-import net.minecraft.init.Blocks;
-import net.minecraft.item.ItemStack;
-
+import gregtech.api.GTValues;
 import gregtech.api.recipes.ModHandler;
-import gregtech.api.unification.material.Materials;
-import gregtech.api.unification.stack.UnificationEntry;
+import gregtech.loaders.recipe.MetaTileEntityLoader;
 
 import com.github.gtexpert.gtbm.api.util.Mods;
-import com.github.gtexpert.gtbm.integration.gendustry.GendustryConfigHolder;
+import com.github.gtexpert.gtbm.integration.gendustry.metatileentities.GendustryMetaTileEntities;
 
 public class GendustryBlocksRecipe {
 
@@ -20,15 +17,15 @@ public class GendustryBlocksRecipe {
 
     private static void machines() {
         // Industrial Apiary
-        if (GendustryConfigHolder.IndustrialApiary) {
-            ModHandler.addShapedRecipe(true, "gendustry_industrial_apiary",
-                    Mods.Gendustry.getItem("industrial_apiary"),
-                    "LTL", "LOL", "ASA",
-                    'L', "blockGlass",
-                    'T', Mods.Gendustry.getItem("bee_receptacle"),
-                    'O', Mods.Forestry.getItem("sturdy_machine"),
-                    'A', new UnificationEntry(gear, Materials.Bronze),
-                    'S', new ItemStack(Blocks.PISTON));
-        }
+        MetaTileEntityLoader.registerMachineRecipe(true, GendustryMetaTileEntities.INDUSTRIAL_APIARY,
+                "ACA", "RHR", "ASA",
+                'A', Mods.Forestry.getItem("alveary.plain"),
+                'C', Mods.Forestry.getItem("chipsets", 1, 1),
+                'R', ROBOT_ARM,
+                'H', HULL,
+                'S', Mods.Forestry.getItem("alveary.sieve"));
+        ModHandler.addShapelessRecipe("gendustry_to_gtbm_industrial_apiary",
+                GendustryMetaTileEntities.INDUSTRIAL_APIARY[GTValues.HV].getStackForm(),
+                Mods.Gendustry.getItem("industrial_apiary"));
     }
 }
