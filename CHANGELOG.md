@@ -1,3 +1,11 @@
+# v1.4.0
+- Add Mega Apiary [#14](https://github.com/GTModpackTeam/GTBeesMatrix/pull/14)
+  - Please report any unusual behavior. However, please note the flowing:
+    - Text in the GUI is overflowing
+    - The controller overlays are not syncing
+
+* * *
+
 # v1.3.1
 - Fix Tree Farm logic [#15](https://github.com/GTModpackTeam/GTBeesMatrix/pull/15)
 
