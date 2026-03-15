@@ -86,6 +86,7 @@ dependencies {
     compileOnly rfg.deobf("curse.maven:ender-io-base-297193:4674231") // EIO 5.3.72
     compileOnly rfg.deobf("curse.maven:ender-io-endergy-304346:4674241") // EIOE 5.3.72
     compileOnly rfg.deobf("curse.maven:ender-io-machines-297196:4674232") // EIOM 5.3.72
+    compileOnly rfg.deobf("curse.maven:ender-io-conduits-297197:4674233") // EIOC 5.3.72
     if (project.debug_all.toBoolean() || project.debug_eio.toBoolean()) {
         runtimeOnly "info.loenwind.autoconfig:AutoConfig:1.12.2-1.0.2" // AutoConfig 1.0.2
         runtimeOnly "info.loenwind.autosave:AutoSave:1.12.2-1.0.11" // AutoSave 1.0.11
@@ -93,6 +94,7 @@ dependencies {
         runtimeOnly rfg.deobf("curse.maven:ender-io-base-297193:4674231") // EIO 5.3.72
         runtimeOnly rfg.deobf("curse.maven:ender-io-endergy-304346:4674241") // EIOE 5.3.72
         runtimeOnly rfg.deobf("curse.maven:ender-io-machines-297196:4674232") // EIOM 5.3.72
+        runtimeOnly rfg.deobf("curse.maven:ender-io-conduits-297197:4674233") // EIOC 5.3.72
     }
 
     // Debug GTFO: 1.12.5
