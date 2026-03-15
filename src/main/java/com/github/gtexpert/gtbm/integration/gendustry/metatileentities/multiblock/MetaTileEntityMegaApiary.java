@@ -95,7 +95,7 @@ public class MetaTileEntityMegaApiary extends MultiblockWithDisplayBase implemen
 
     private EnergyContainerList energyContainer;
 
-    private static IBeekeepingMode mode;
+    private IBeekeepingMode mode;
 
     public MetaTileEntityMegaApiary(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId);
@@ -423,30 +423,46 @@ public class MetaTileEntityMegaApiary extends MultiblockWithDisplayBase implemen
 
             primary.getProductChances().forEach((stack, f) -> {
                 float v = (speed + f + baseModifier + baseModifier * getMaxTier()) * applyBonus;
-                while (v > 1.0F) {
-                    int size = Math.min((int) v, 64);
-                    stack.setCount(size);
-                    products.add(stack);
-                    v -= size;
+                int amount = (int) v;
+                if (getWorld().rand.nextFloat() < v - amount) {
+                    amount++;
+                }
+                while (amount > 0) {
+                    ItemStack newStack = stack.copy();
+                    int stackSize = Math.min(amount, newStack.getMaxStackSize());
+                    newStack.setCount(stackSize);
+                    products.add(newStack);
+                    amount -= stackSize;
                 }
             });
+
             secondary.getProductChances().forEach((stack, f) -> {
                 float v = (speed + f + baseModifier + baseModifier * getMaxTier()) * applyBonus;
-                while (v > 1.0F) {
-                    int size = Math.min((int) v, 64);
-                    stack.setCount(size);
-                    products.add(stack);
-                    v -= size;
+                int amount = (int) v;
+                if (getWorld().rand.nextFloat() < v - amount) {
+                    amount++;
+                }
+                while (amount > 0) {
+                    ItemStack newStack = stack.copy();
+                    int stackSize = Math.min(amount, newStack.getMaxStackSize());
+                    newStack.setCount(stackSize);
+                    products.add(newStack);
+                    amount -= stackSize;
                 }
             });
 
             primary.getSpecialtyChances().forEach((stack, f) -> {
                 float v = (speed + f + baseModifier + baseModifier * getMaxTier()) * applyBonus;
-                while (v > 1.0F) {
-                    int size = Math.min((int) v, 64);
-                    stack.setCount(size);
-                    products.add(stack);
-                    v -= size;
+                int amount = (int) v;
+                if (getWorld().rand.nextFloat() < v - amount) {
+                    amount++;
+                }
+                while (amount > 0) {
+                    ItemStack newStack = stack.copy();
+                    int stackSize = Math.min(amount, newStack.getMaxStackSize());
+                    newStack.setCount(stackSize);
+                    products.add(newStack);
+                    amount -= stackSize;
                 }
             });
             royalJerry -= bonus;
@@ -530,7 +546,7 @@ public class MetaTileEntityMegaApiary extends MultiblockWithDisplayBase implemen
                     for (ItemStack stack : merged) {
                         tl.add(TextComponentUtil.translationWithColor(
                                 TextFormatting.WHITE,
-                                "gtbm.multiblock.maga_apiary.outputs",
+                                "gtbm.multiblock.mega_apiary.outputs",
                                 TextComponentUtil.stringWithColor(
                                         TextFormatting.AQUA,
                                         stack.getDisplayName()),

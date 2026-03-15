@@ -57,7 +57,7 @@ gtbm.multiblock.mega_apiary.tooltip.11=§eNote§7: When using §aauto-build§7, 
 gtbm.multiblock.mega_apiary.queens=Queens: %s
 gtbm.multiblock.mega_apiary.jerry_body=Royal Jerry: %s
 gtbm.multiblock.mega_apiary.jerry_hover=Each Queen increases production by 5%% per Royal Jelly, up to a maximum of +200%%.
-gtbm.multiblock.maga_apiary.outputs=%s: §6x%s
+gtbm.multiblock.mega_apiary.outputs=%s: §6x%s
 
 # TOP
 gtbm.top.mega_apiary.queen=Queen:
