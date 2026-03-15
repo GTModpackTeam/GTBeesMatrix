@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.List;
 
 import net.minecraft.block.Block;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -69,15 +70,17 @@ import forestry.apiculture.blocks.BlockAlvearyType;
 import forestry.apiculture.genetics.BeeDefinition;
 import forestry.apiculture.genetics.BeeGenome;
 import forestry.arboriculture.ModuleArboriculture;
+import org.jetbrains.annotations.Nullable;
 
 public class MetaTileEntityMegaApiary extends MultiblockWithDisplayBase implements IControllable {
 
     private boolean isWorkingEnabled = true;
-    private boolean isWorking = false;
+    private boolean isWorking;
 
     private static final int PROCESS_TIME = 100;
     private int progressTicks = 0;
     private int inputSize = 0;
+    private int royalJerry = 0;
 
     private long consumption;
 
@@ -183,9 +186,8 @@ public class MetaTileEntityMegaApiary extends MultiblockWithDisplayBase implemen
                 .where('A', states(MetaBlocks.TRANSPARENT_CASING.getState(BlockGlassCasing.CasingType.FUSION_GLASS)))
                 .where('B', blocks(Blocks.DIRT).or(blocks(Blocks.GRASS)))
                 .where('G', states(MetaBlocks.METAL_CASING.getState(BlockMetalCasing.MetalCasingType.BRONZE_BRICKS))
-                        .or(abilities(MultiblockAbility.IMPORT_ITEMS).setMinGlobalLimited(1, 2).setMaxGlobalLimited(5))
-                        .or(abilities(MultiblockAbility.EXPORT_ITEMS).setMinGlobalLimited(1, 2).setMaxGlobalLimited(5))
-                        .or(abilities(MultiblockAbility.IMPORT_FLUIDS).setMaxGlobalLimited(5, 1))
+                        .or(abilities(MultiblockAbility.IMPORT_ITEMS).setMinGlobalLimited(1, 2).setMaxGlobalLimited(10))
+                        .or(abilities(MultiblockAbility.EXPORT_ITEMS).setMinGlobalLimited(1, 2).setMaxGlobalLimited(10))
                         .or(abilities(MultiblockAbility.MAINTENANCE_HATCH).setExactLimit(1))
                         .or(getEnergyInputPredicate()))
                 .where('H', getPlanks())
@@ -256,7 +258,7 @@ public class MetaTileEntityMegaApiary extends MultiblockWithDisplayBase implemen
     @Override
     public void renderMetaTileEntity(CCRenderState renderState, Matrix4 translation, IVertexOperation[] pipeline) {
         super.renderMetaTileEntity(renderState, translation, pipeline);
-        getFrontOverlay().renderSided(getFrontFacing(), renderState, translation, pipeline);
+        getFrontOverlay().renderOrientedState(renderState, translation, pipeline, getFrontFacing(), isActive(), isWorkingEnabled);
     }
 
     @Override
@@ -356,6 +358,10 @@ public class MetaTileEntityMegaApiary extends MultiblockWithDisplayBase implemen
             ItemStack stack = importItems.getStackInSlot(i);
             if (isQueen(stack)) {
                 queenStacks.add(stack);
+            } else if (isJerry(stack)) {
+                int count = importItems.getStackInSlot(i).getCount();
+                royalJerry += count;
+                importItems.extractItem(i, count, false);
             } else {
                 stack = importItems.extractItem(i, importItems.getStackInSlot(i).getCount(), false);
                 if (GTTransferUtils.addItemsToItemHandler(exportItems, true,
@@ -390,9 +396,12 @@ public class MetaTileEntityMegaApiary extends MultiblockWithDisplayBase implemen
             float speed = genome.getSpeed();
             float baseModifier = mode.getBeeModifier().getProductionModifier(genome,
                     MAX_PRODUCTION_MODIFIER_FROM_UPGRADES);
+            int bonus = Math.min(royalJerry, 40);
+
+            float applyBonus = (float) (1 + bonus * 0.05);
 
             primary.getProductChances().forEach((stack, f) -> {
-                double v = speed + f + baseModifier + baseModifier * getMaxTier();
+                float v = (speed + f + baseModifier + baseModifier * getMaxTier()) * applyBonus;
                 while (v > 1.0F) {
                     int size = Math.min((int) v, 64);
                     stack.setCount(size);
@@ -401,7 +410,7 @@ public class MetaTileEntityMegaApiary extends MultiblockWithDisplayBase implemen
                 }
             });
             secondary.getProductChances().forEach((stack, f) -> {
-                double v = speed + f + baseModifier + baseModifier * getMaxTier();
+                float v = (speed + f + baseModifier + baseModifier * getMaxTier()) * applyBonus;
                 while (v > 1.0F) {
                     int size = Math.min((int) v, 64);
                     stack.setCount(size);
@@ -411,7 +420,7 @@ public class MetaTileEntityMegaApiary extends MultiblockWithDisplayBase implemen
             });
 
             primary.getSpecialtyChances().forEach((stack, f) -> {
-                double v = speed + f + baseModifier + baseModifier * getMaxTier();
+                float v = (speed + f + baseModifier + baseModifier * getMaxTier()) * applyBonus;
                 while (v > 1.0F) {
                     int size = Math.min((int) v, 64);
                     stack.setCount(size);
@@ -419,8 +428,8 @@ public class MetaTileEntityMegaApiary extends MultiblockWithDisplayBase implemen
                     v -= size;
                 }
             });
+            royalJerry -= bonus;
         }
-
         mergeProducts();
     }
 
@@ -461,6 +470,10 @@ public class MetaTileEntityMegaApiary extends MultiblockWithDisplayBase implemen
         return stack.isItemEqual(ModuleApiculture.getItems().beeQueenGE.getItemStack());
     }
 
+    private boolean isJerry(ItemStack stack) {
+        return stack.isItemEqual(ModuleApiculture.getItems().royalJelly.getItemStack());
+    }
+
     // ==Display Text==
     @Override
     protected void addDisplayText(List<ITextComponent> textList) {
@@ -473,8 +486,19 @@ public class MetaTileEntityMegaApiary extends MultiblockWithDisplayBase implemen
                 .addCustom(tl -> {
                     tl.add(TextComponentUtil.translationWithColor(
                             TextFormatting.GRAY,
-                            "gtbm.multiblock.mega_apiary.princess",
+                            "gtbm.multiblock.mega_apiary.queens",
                             this.inputSize));
+
+                    ITextComponent jerryBody = TextComponentUtil.translationWithColor(
+                            TextFormatting.GRAY,
+                            "gtbm.multiblock.mega_apiary.jerry_body",
+                            TextFormattingUtil.formatNumbers(this.royalJerry));
+                    ITextComponent jerryHover = TextComponentUtil.translationWithColor(
+                            TextFormatting.WHITE,
+                            "gtbm.multiblock.mega_apiary.jerry_hover"
+                    );
+                    tl.add(TextComponentUtil.setHover(jerryBody, jerryHover));
+
                     if (isWorking) {
                         float currentProgress = ((float) progressTicks / PROCESS_TIME) * 100;
                         double current = (double) progressTicks / 20;
@@ -531,7 +555,7 @@ public class MetaTileEntityMegaApiary extends MultiblockWithDisplayBase implemen
 
     @Override
     public boolean isActive() {
-        return isWorking;
+        return isWorking && isWorkingEnabled;
     }
 
     @Override
@@ -549,6 +573,7 @@ public class MetaTileEntityMegaApiary extends MultiblockWithDisplayBase implemen
         data.setBoolean("isWorkingEnabled", this.isWorkingEnabled);
         data.setInteger("inputSize", this.inputSize);
         data.setInteger("progressTicks", this.progressTicks);
+        data.setInteger("royalJerry", this.royalJerry);
         return data;
     }
 
@@ -559,6 +584,7 @@ public class MetaTileEntityMegaApiary extends MultiblockWithDisplayBase implemen
         this.isWorkingEnabled = data.getBoolean("isWorkingEnabled");
         this.inputSize = data.getInteger("inputSize");
         this.progressTicks = data.getInteger("progressTicks");
+        this.royalJerry = data.getInteger("royalJerry");
     }
 
     @Override
@@ -568,6 +594,7 @@ public class MetaTileEntityMegaApiary extends MultiblockWithDisplayBase implemen
         buf.writeBoolean(this.isWorkingEnabled);
         buf.writeInt(this.inputSize);
         buf.writeInt(this.progressTicks);
+        buf.writeInt(this.royalJerry);
     }
 
     @Override
@@ -577,6 +604,7 @@ public class MetaTileEntityMegaApiary extends MultiblockWithDisplayBase implemen
         this.isWorkingEnabled = buf.readBoolean();
         this.inputSize = buf.readInt();
         this.progressTicks = buf.readInt();
+        this.royalJerry = buf.readInt();
     }
 
     @Override

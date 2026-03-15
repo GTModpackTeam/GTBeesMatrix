@@ -41,5 +41,8 @@ gtbm.multiblock.progress=進捗: %s / %s (%s%%)
 gtbm.multiblock.progress_sec=%s 秒
 
 # Mega Apiary
-gtbm.multiblock.mega_apiary.princess=Queens: %s
+gtbm.machine.mega_apiary.name=メガ養蜂箱
+gtbm.multiblock.mega_apiary.queens=女王: %s
+gtbm.multiblock.mega_apiary.jerry_body=ローヤルゼリー: %s
+gtbm.multiblock.mega_apiary.jerry_hover=女王1匹につき、生産量がローヤルゼリー1個ごとに5%%増加する (最大 +200%%)。
 gtbm.multiblock.maga_apiary.outputs=%s: §6x%s

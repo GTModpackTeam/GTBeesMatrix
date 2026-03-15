@@ -41,5 +41,8 @@ gtbm.multiblock.progress=Progress: %s / %s (%s%%)
 gtbm.multiblock.progress_sec=%s s
 
 # Mega Apiary
-gtbm.multiblock.mega_apiary.princess=Queens: %s
+gtbm.machine.mega_apiary.name=Mega Apiary
+gtbm.multiblock.mega_apiary.queens=Queens: %s
+gtbm.multiblock.mega_apiary.jerry_body=Royal Jerry: %s
+gtbm.multiblock.mega_apiary.jerry_hover=Each Queen increases production by 5%% per Royal Jelly, up to a maximum of +200%%.
 gtbm.multiblock.maga_apiary.outputs=%s: §6x%s
