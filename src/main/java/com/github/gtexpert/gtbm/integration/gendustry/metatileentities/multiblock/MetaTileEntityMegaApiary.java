@@ -22,6 +22,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import gregtech.api.GTValues;
 import gregtech.api.capability.GregtechDataCodes;
@@ -49,6 +50,7 @@ import gregtech.api.util.TextComponentUtil;
 import gregtech.api.util.TextFormattingUtil;
 import gregtech.client.renderer.ICubeRenderer;
 import gregtech.client.renderer.texture.Textures;
+import gregtech.client.utils.TooltipHelper;
 import gregtech.common.blocks.BlockGlassCasing;
 import gregtech.common.blocks.BlockMetalCasing;
 import gregtech.common.blocks.MetaBlocks;
@@ -70,7 +72,6 @@ import forestry.apiculture.blocks.BlockAlvearyType;
 import forestry.apiculture.genetics.BeeDefinition;
 import forestry.apiculture.genetics.BeeGenome;
 import forestry.arboriculture.ModuleArboriculture;
-import org.jetbrains.annotations.Nullable;
 
 public class MetaTileEntityMegaApiary extends MultiblockWithDisplayBase implements IControllable {
 
@@ -258,7 +259,8 @@ public class MetaTileEntityMegaApiary extends MultiblockWithDisplayBase implemen
     @Override
     public void renderMetaTileEntity(CCRenderState renderState, Matrix4 translation, IVertexOperation[] pipeline) {
         super.renderMetaTileEntity(renderState, translation, pipeline);
-        getFrontOverlay().renderOrientedState(renderState, translation, pipeline, getFrontFacing(), isActive(), isWorkingEnabled);
+        getFrontOverlay().renderOrientedState(renderState, translation, pipeline, getFrontFacing(), isActive(),
+                isWorkingEnabled);
     }
 
     @Override
@@ -495,8 +497,7 @@ public class MetaTileEntityMegaApiary extends MultiblockWithDisplayBase implemen
                             TextFormattingUtil.formatNumbers(this.royalJerry));
                     ITextComponent jerryHover = TextComponentUtil.translationWithColor(
                             TextFormatting.WHITE,
-                            "gtbm.multiblock.mega_apiary.jerry_hover"
-                    );
+                            "gtbm.multiblock.mega_apiary.jerry_hover");
                     tl.add(TextComponentUtil.setHover(jerryBody, jerryHover));
 
                     if (isWorking) {
@@ -617,5 +618,27 @@ public class MetaTileEntityMegaApiary extends MultiblockWithDisplayBase implemen
             this.isWorkingEnabled = buf.readBoolean();
             scheduleRenderUpdate();
         }
+    }
+
+    @Override
+    public void addInformation(ItemStack stack, @Nullable World world, @NotNull List<String> tooltip,
+                               boolean advanced) {
+        super.addInformation(stack, world, tooltip, advanced);
+        tooltip.add(I18n.format("gtbm.multiblock.mega_apiary.tooltip.1"));
+        tooltip.add(I18n.format("gtbm.multiblock.mega_apiary.tooltip.2"));
+        tooltip.add(I18n.format("gtbm.multiblock.mega_apiary.tooltip.3"));
+        tooltip.add(I18n.format("gtbm.multiblock.mega_apiary.tooltip.4"));
+        tooltip.add(I18n.format("gtbm.multiblock.mega_apiary.tooltip.5"));
+        tooltip.add(I18n.format("gtbm.multiblock.mega_apiary.tooltip.6"));
+        if (TooltipHelper.isCtrlDown()) {
+            tooltip.add(I18n.format("gtbm.multiblock.mega_apiary.tooltip.7.2"));
+            tooltip.add(I18n.format("gtbm.multiblock.mega_apiary.tooltip.8"));
+            tooltip.add(I18n.format("gtbm.multiblock.mega_apiary.tooltip.9"));
+            tooltip.add(I18n.format("gtbm.multiblock.mega_apiary.tooltip.10"));
+        } else {
+            tooltip.add(I18n.format("gtbm.multiblock.mega_apiary.tooltip.7.1"));
+
+        }
+        tooltip.add(I18n.format("gtbm.multiblock.mega_apiary.tooltip.11"));
     }
 }
