@@ -89,8 +89,7 @@ jobs:
             gregtech-ce-unofficial(required)
             gregicality-multiblocks(recommended)
             gregtech-food-option(recommended)
-            thaumcraft(recommended)
-            forestry(recommended)
+            forestry(required)
             gendustry(recommended)
             binnies-mods-patched(recommended)
           files: |
