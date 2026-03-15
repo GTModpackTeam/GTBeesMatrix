@@ -74,9 +74,9 @@ dependencies {
     }
 
     // Debug Binnies
-    compileOnly rfg.deobf("curse.maven:binnies-mods-patched-899182:5492997") // Binnie's Mods Patched 2.5.1.212
+    compileOnly rfg.deobf("curse.maven:binnies-mods-patched-899182:7731146") // Binnie's Mods Patched 2.5.1.213
     if (project.debug_all.toBoolean() || project.debug_binnies.toBoolean()) {
-        runtimeOnly rfg.deobf("curse.maven:binnies-mods-patched-899182:5492997") // Binnie's Mods Patched 2.5.1.212
+        runtimeOnly rfg.deobf("curse.maven:binnies-mods-patched-899182:7731146") // Binnie's Mods Patched 2.5.1.213
     }
 
     // Debug EnderIO
