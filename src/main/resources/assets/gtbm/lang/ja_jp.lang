@@ -30,3 +30,7 @@ gtbm.bee.label.health=女王の体力: %s
 gtbm.bee.label.cycle=次の産出まで: %s
 gtbm.bee.label.breeding=交配進行度: %s
 gtbm.bee.label.upgrade_note=§o§7アップグレードの変更は次のサイクルから適用されます
+
+# GUI
+gtbm.gui.auto_breeding.tooltip.enabled=自動交配: ON/nクイーン死亡後にプリンセスを自動的に入力スロットに戻します
+gtbm.gui.auto_breeding.tooltip.disabled=自動交配: OFF/nプリンセスはアウトプットに残ります

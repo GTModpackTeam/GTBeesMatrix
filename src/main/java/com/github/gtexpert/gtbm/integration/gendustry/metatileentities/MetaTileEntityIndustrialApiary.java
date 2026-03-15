@@ -1,7 +1,6 @@
 package com.github.gtexpert.gtbm.integration.gendustry.metatileentities;
 
 import java.util.Collections;
-import java.util.List;
 import java.util.function.Function;
 
 import javax.annotation.Nullable;
@@ -35,6 +34,10 @@ import gregtech.client.renderer.ICubeRenderer;
 
 import com.github.gtexpert.gtbm.api.gui.GTBMGuiTextures;
 import com.github.gtexpert.gtbm.common.metatileentities.GTBMSimpleMachineMetaTileEntity;
+import com.github.gtexpert.gtbm.integration.forestry.util.ApiaryModifierBridge;
+import com.github.gtexpert.gtbm.integration.forestry.util.BeeClimateHelper;
+import com.github.gtexpert.gtbm.integration.forestry.util.BeeProductHelper;
+import com.github.gtexpert.gtbm.integration.forestry.util.WidgetBeeStatus;
 
 import forestry.api.apiculture.*;
 import forestry.api.core.*;
@@ -42,15 +45,41 @@ import forestry.api.genetics.IIndividual;
 import forestry.core.errors.ErrorLogic;
 
 public class MetaTileEntityIndustrialApiary extends GTBMSimpleMachineMetaTileEntity
-                                            implements IBeeHousing, IBeeModifier, IBeeListener, IBeeHousingInventory {
+                                            implements IBeeHousing, IBeeHousingInventory {
 
     private static final int UPGRADE_SLOT_COUNT = 4;
     private static final int OUTPUT_SLOT_COUNT = 9;
 
     private final ApiaryModifiers modifiers = new ApiaryModifiers();
     private final IErrorLogic errorLogic = new ErrorLogic();
+    private final BeeClimateHelper climateHelper = new BeeClimateHelper(modifiers);
+    private final IBeeModifier beeModifier = new ApiaryModifierBridge(modifiers) {
+
+        @Override
+        public boolean isHellish() {
+            return climateHelper.isHellish(getWorld(), getPos());
+        }
+    };
+    private final IBeeListener beeListener = new DefaultBeeListener() {
+
+        @Override
+        public void onQueenDeath() {
+            if (autoBreeding) {
+                getLogic().setNeedsMovePrincess();
+            }
+        }
+
+        @Override
+        public boolean onPollenRetrieved(IIndividual pollen) {
+            if (!modifiers.isCollectingPollen) return false;
+            ItemStack stack = pollen.getGenome().getSpeciesRoot()
+                    .getMemberStack(pollen, forestry.api.arboriculture.EnumGermlingType.POLLEN);
+            return addProduct(stack, true);
+        }
+    };
     private IItemHandlerModifiable upgradeInventory;
     private GameProfile owner;
+    private boolean autoBreeding = true;
 
     public MetaTileEntityIndustrialApiary(ResourceLocation metaTileEntityId, RecipeMap<?> recipeMap,
                                           ICubeRenderer renderer, int tier, boolean hasFrontFacing,
@@ -73,13 +102,12 @@ public class MetaTileEntityIndustrialApiary extends GTBMSimpleMachineMetaTileEnt
 
     @Override
     protected IItemHandlerModifiable createImportItemHandler() {
-        // Slot 0: Queen/Princess, Slot 1: Drone
         return new NotifiableItemStackHandler(this, 2, this, false) {
 
             @Override
             public boolean isItemValid(int slot, @org.jetbrains.annotations.NotNull ItemStack stack) {
                 IBeeRoot beeRoot = getLogic().getBeeRoot();
-                if (beeRoot == null) return true; // Allow if bee system not yet initialized
+                if (beeRoot == null) return true;
                 if (slot == 0) {
                     return beeRoot.isMember(stack, EnumBeeType.QUEEN) || beeRoot.isMember(stack, EnumBeeType.PRINCESS);
                 }
@@ -114,10 +142,6 @@ public class MetaTileEntityIndustrialApiary extends GTBMSimpleMachineMetaTileEnt
         };
     }
 
-    /**
-     * Calculate how many more of this upgrade can be installed.
-     * Same logic as Gendustry's TileApiary.getMaxAdditionalUpgrades.
-     */
     public int getMaxAdditionalUpgrades(ItemStack stack) {
         if (stack.isEmpty() || !(stack.getItem() instanceof IApiaryUpgrade)) return 0;
         IApiaryUpgrade upgrade = (IApiaryUpgrade) stack.getItem();
@@ -134,17 +158,11 @@ public class MetaTileEntityIndustrialApiary extends GTBMSimpleMachineMetaTileEnt
         return upgrade.getMaxNumber(stack) - existing;
     }
 
-    @Override
-    public void markDirty() {
-        super.markDirty();
-    }
-
     // ---- NBT ----
 
     @Override
     public NBTTagCompound writeToNBT(NBTTagCompound data) {
         super.writeToNBT(data);
-        // Upgrades
         NBTTagCompound upgradeTag = new NBTTagCompound();
         for (int i = 0; i < upgradeInventory.getSlots(); i++) {
             ItemStack stack = upgradeInventory.getStackInSlot(i);
@@ -154,7 +172,6 @@ public class MetaTileEntityIndustrialApiary extends GTBMSimpleMachineMetaTileEnt
         }
         data.setTag("UpgradeInventory", upgradeTag);
 
-        // Owner
         if (owner != null) {
             NBTTagCompound ownerTag = new NBTTagCompound();
             ownerTag.setString("Name", owner.getName());
@@ -162,13 +179,13 @@ public class MetaTileEntityIndustrialApiary extends GTBMSimpleMachineMetaTileEnt
             data.setTag("Owner", ownerTag);
         }
 
+        data.setBoolean("AutoBreeding", autoBreeding);
         return data;
     }
 
     @Override
     public void readFromNBT(NBTTagCompound data) {
         super.readFromNBT(data);
-        // Upgrades
         if (data.hasKey("UpgradeInventory")) {
             NBTTagCompound upgradeTag = data.getCompoundTag("UpgradeInventory");
             for (int i = 0; i < upgradeInventory.getSlots(); i++) {
@@ -178,19 +195,18 @@ public class MetaTileEntityIndustrialApiary extends GTBMSimpleMachineMetaTileEnt
                 }
             }
         }
-
-        // Owner
         if (data.hasKey("Owner")) {
             NBTTagCompound ownerTag = data.getCompoundTag("Owner");
             owner = new GameProfile(
                     java.util.UUID.fromString(ownerTag.getString("UUID")),
                     ownerTag.getString("Name"));
         }
+        if (data.hasKey("AutoBreeding")) {
+            autoBreeding = data.getBoolean("AutoBreeding");
+        }
     }
 
     // ---- GUI ----
-    // Based on Gendustry Industrial Apiary layout, adapted for GT controls.
-    // 176x179: Content(y=18-66) | Controls(y=75) | PlayerInv(y=97)
 
     private static final int Y_OFFSET = 13;
 
@@ -199,103 +215,80 @@ public class MetaTileEntityIndustrialApiary extends GTBMSimpleMachineMetaTileEnt
         if (owner == null) {
             owner = player.getGameProfile();
         }
-
-        // Force refresh flower cache and error states when GUI is opened
         IBeekeepingLogic logic = getBeekeepingLogic();
         if (logic != null && !getWorld().isRemote) {
             logic.clearCachedValues();
         }
 
         ModularUI.Builder builder = ModularUI.builder(GuiTextures.BACKGROUND, 176, 166 + Y_OFFSET);
-
-        // Title
         builder.widget(new LabelWidget(5, 5, getMetaFullName()));
 
-        // Queen slot (x=7, aligned with AutoOutput button, shift-clickable)
+        // Bee slots
         builder.widget(new SlotWidget(importItems, 0, 7, 18, true, true, true)
                 .setBackgroundTexture(GuiTextures.SLOT));
         builder.widget(new ImageWidget(8, 19, 16, 16, GTBMGuiTextures.QUEEN_OVERLAY));
-
-        // Drone slot (y=36, aligned with upgrade and output middle row, shift-clickable)
         builder.widget(new SlotWidget(importItems, 1, 7, 36, true, true, true)
                 .setBackgroundTexture(GuiTextures.SLOT));
         builder.widget(new ImageWidget(8, 37, 16, 16, GTBMGuiTextures.DRONE_OVERLAY));
 
-        // Bee status indicator (below bee slots, Gendustry-style error icon + stats tooltip)
-        builder.widget(new com.github.gtexpert.gtbm.integration.forestry.util.WidgetBeeStatus(
-                8, 56, this, getLogic().getBeeRoot(), getModifiers(),
-                getLogic()::getEUPerTick, getLogic()::getCycleTickCounter));
+        // Bee status
+        builder.widget(new WidgetBeeStatus(8, 56, this, getLogic().getBeeRoot(), getModifiers(),
+                getLogic()::getEUPerTick));
 
-        // Progress bar (centered above upgrade slots)
+        // Progress bar
         builder.widget(new ProgressWidget(getLogic()::getBeeProgress, 60, 16, 20, 20,
                 GuiTextures.PROGRESS_BAR_ARROW, ProgressWidget.MoveType.HORIZONTAL));
 
-        // Upgrade slots 1x4 (y=36, same row as drone and output middle, shift-clickable)
+        // Upgrade slots
         for (int i = 0; i < UPGRADE_SLOT_COUNT; i++) {
             builder.widget(new SlotWidget(upgradeInventory, i, 34 + i * 18, 36, true, true, true)
                     .setBackgroundTexture(GuiTextures.SLOT));
             builder.widget(new ImageWidget(35 + i * 18, 37, 16, 16, GTBMGuiTextures.UPGRADE_OVERLAY));
         }
 
-        // Output slots 3x3 (right edge aligned with logo x=169)
+        // Output slots
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
                 builder.widget(new SlotWidget(exportItems, j + i * 3, 115 + j * 18, 18 + i * 18,
-                        true, false, false)
-                                .setBackgroundTexture(GuiTextures.SLOT));
+                        true, false, false).setBackgroundTexture(GuiTextures.SLOT));
             }
         }
 
-        // Energy indicator (above charger)
+        // GT controls
         builder.widget(new ImageWidget(79, 42 + Y_OFFSET, 18, 18, GuiTextures.INDICATOR_NO_ENERGY)
-                .setIgnoreColor(true)
-                .setPredicate(workable::isHasNotEnoughEnergy));
-
-        // Bottom row (GT default positions + Y_OFFSET)
-        // Auto output items button
+                .setIgnoreColor(true).setPredicate(workable::isHasNotEnoughEnergy));
         builder.widget(new ToggleButtonWidget(7, 62 + Y_OFFSET, 18, 18,
                 GuiTextures.BUTTON_ITEM_OUTPUT, this::isAutoOutputItems, this::setAutoOutputItems)
-                        .setTooltipText("gregtech.gui.item_auto_output.tooltip")
-                        .shouldUseBaseBackground());
-
-        // Overclock button
+                        .setTooltipText("gregtech.gui.item_auto_output.tooltip").shouldUseBaseBackground());
         builder.widget(new CycleButtonWidget(25, 62 + Y_OFFSET, 18, 18,
                 workable.getAvailableOverclockingTiers(), workable::getOverclockTier, workable::setOverclockTier)
                         .setTooltipHoverString("gregtech.gui.overclock.description")
                         .setButtonTexture(GuiTextures.BUTTON_OVERCLOCK));
-
-        // Charger slot
+        builder.widget(new ToggleButtonWidget(43, 62 + Y_OFFSET, 18, 18,
+                GuiTextures.BUTTON_ITEM_OUTPUT, this::isAutoBreeding, this::setAutoBreeding)
+                        .setTooltipText("gtbm.gui.auto_breeding.tooltip").shouldUseBaseBackground());
         builder.widget(new SlotWidget(chargerInventory, 0, 79, 62 + Y_OFFSET, true, true, true)
                 .setBackgroundTexture(GuiTextures.SLOT, GuiTextures.CHARGER_OVERLAY)
                 .setTooltipText("gregtech.gui.charger_slot.tooltip",
                         GTValues.VNF[getTier()], GTValues.VNF[getTier()]));
-
-        // Logo
         builder.widget(new ImageWidget(152, 63 + Y_OFFSET, 17, 17,
                 GTValues.XMAS.get() ? GTBMGuiTextures.GTBM_LOGO_XMAS : GTBMGuiTextures.GTBM_LOGO)
                         .setIgnoreColor(true));
-
-        // Player inventory
         builder.bindPlayerInventory(player.inventory, GuiTextures.SLOT, Y_OFFSET);
 
         return builder.build(getHolder(), player);
-    }
-
-    @Override
-    public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
-        super.addInformation(stack, player, tooltip, advanced);
     }
 
     // ---- IBeeHousing ----
 
     @Override
     public Iterable<IBeeModifier> getBeeModifiers() {
-        return Collections.singletonList(this);
+        return Collections.singletonList(beeModifier);
     }
 
     @Override
     public Iterable<IBeeListener> getBeeListeners() {
-        return Collections.singletonList(this);
+        return Collections.singletonList(beeListener);
     }
 
     @Override
@@ -310,20 +303,17 @@ public class MetaTileEntityIndustrialApiary extends GTBMSimpleMachineMetaTileEnt
 
     @Override
     public int getBlockLightValue() {
-        if (getWorld() == null) return 0;
-        return getWorld().getLightFromNeighbors(getPos().offset(EnumFacing.UP));
+        return getWorld() != null ? getWorld().getLightFromNeighbors(getPos().offset(EnumFacing.UP)) : 0;
     }
 
     @Override
     public boolean canBlockSeeTheSky() {
-        if (getWorld() == null) return false;
-        return getWorld().canBlockSeeSky(getPos().offset(EnumFacing.UP, 2));
+        return getWorld() != null && getWorld().canBlockSeeSky(getPos().offset(EnumFacing.UP, 2));
     }
 
     @Override
     public boolean isRaining() {
-        if (getWorld() == null) return false;
-        return getWorld().isRainingAt(getPos().up());
+        return getWorld() != null && getWorld().isRainingAt(getPos().up());
     }
 
     @Override
@@ -334,139 +324,39 @@ public class MetaTileEntityIndustrialApiary extends GTBMSimpleMachineMetaTileEnt
 
     @Override
     public Vec3d getBeeFXCoordinates() {
-        BlockPos pos = getPos();
-        return new Vec3d(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5);
+        return new Vec3d(getPos().getX() + 0.5, getPos().getY() + 0.5, getPos().getZ() + 0.5);
     }
-
-    // ---- IHousing ----
 
     @Override
     public BlockPos getCoordinates() {
         return getPos();
     }
 
-    // ---- ILocatable ----
-
     @Override
     public World getWorldObj() {
         return getWorld();
     }
 
-    // ---- IClimateProvider ----
-
-    private Biome getModifiedBiome() {
-        if (modifiers != null && modifiers.biomeOverride != null) {
-            return modifiers.biomeOverride;
-        }
-        if (getWorld() == null) return null;
-        return getWorld().getBiome(getPos());
-    }
+    // ---- IClimateProvider (delegated to BeeClimateHelper) ----
 
     @Override
     public Biome getBiome() {
-        Biome biome = getModifiedBiome();
-        return biome != null ? biome : getWorld().getBiome(getPos());
+        return climateHelper.getBiome(getWorld(), getPos());
     }
 
     @Override
     public EnumTemperature getTemperature() {
-        Biome biome = getModifiedBiome();
-        if (biome == null) return EnumTemperature.NORMAL;
-        if (BiomeHelper.isBiomeHellish(biome)) {
-            return EnumTemperature.HELLISH;
-        }
-        float temp = modifiers != null ? modifiers.temperature : 0;
-        return EnumTemperature.getFromValue(biome.getTemperature(getPos()) + temp);
+        return climateHelper.getTemperature(getWorld(), getPos());
     }
 
     @Override
     public EnumHumidity getHumidity() {
-        Biome biome = getModifiedBiome();
-        if (biome == null) return EnumHumidity.NORMAL;
-        float humidity = modifiers != null ? modifiers.humidity : 0;
-        return EnumHumidity.getFromValue(biome.getRainfall() + humidity);
+        return climateHelper.getHumidity(getWorld(), getPos());
     }
-
-    // ---- IErrorLogicSource ----
 
     @Override
     public IErrorLogic getErrorLogic() {
         return errorLogic;
-    }
-
-    // ---- IBeeModifier ----
-
-    @Override
-    public float getTerritoryModifier(IBeeGenome genome, float currentModifier) {
-        return Math.min(modifiers.territory, 5);
-    }
-
-    @Override
-    public float getMutationModifier(IBeeGenome genome, IBeeGenome mate, float currentModifier) {
-        return modifiers.mutation;
-    }
-
-    @Override
-    public float getLifespanModifier(IBeeGenome genome, @Nullable IBeeGenome mate, float currentModifier) {
-        return modifiers.lifespan;
-    }
-
-    @Override
-    public float getProductionModifier(IBeeGenome genome, float currentModifier) {
-        return modifiers.production;
-    }
-
-    @Override
-    public float getFloweringModifier(IBeeGenome genome, float currentModifier) {
-        return modifiers.flowering;
-    }
-
-    @Override
-    public float getGeneticDecay(IBeeGenome genome, float currentModifier) {
-        return modifiers.geneticDecay;
-    }
-
-    @Override
-    public boolean isSealed() {
-        return modifiers.isSealed;
-    }
-
-    @Override
-    public boolean isSelfLighted() {
-        return modifiers.isSelfLighted;
-    }
-
-    @Override
-    public boolean isSunlightSimulated() {
-        return modifiers.isSunlightSimulated;
-    }
-
-    @Override
-    public boolean isHellish() {
-        Biome biome = getModifiedBiome();
-        return biome != null && BiomeHelper.isBiomeHellish(biome);
-    }
-
-    // ---- IBeeListener ----
-
-    @Override
-    public void onQueenDeath() {
-        if (modifiers.isAutomated) {
-            getLogic().setNeedsMovePrincess();
-        }
-    }
-
-    @Override
-    public void wearOutEquipment(int amount) {
-        // No-op: Industrial Apiary does not wear out
-    }
-
-    @Override
-    public boolean onPollenRetrieved(IIndividual pollen) {
-        if (!modifiers.isCollectingPollen) return false;
-        ItemStack stack = pollen.getGenome().getSpeciesRoot()
-                .getMemberStack(pollen, forestry.api.arboriculture.EnumGermlingType.POLLEN);
-        return addProduct(stack, true);
     }
 
     // ---- IBeeHousingInventory ----
@@ -493,40 +383,8 @@ public class MetaTileEntityIndustrialApiary extends GTBMSimpleMachineMetaTileEnt
 
     @Override
     public boolean addProduct(ItemStack product, boolean all) {
-        if (product.isEmpty()) return true;
-
-        ItemStack remaining = product.copy();
-        IBeeRoot beeRoot = getLogic().getBeeRoot();
-
-        // If automated, try to put bees back into bee slots first
-        if (modifiers.isAutomated && beeRoot != null && beeRoot.isMember(remaining)) {
-            if (beeRoot.isMember(remaining, EnumBeeType.PRINCESS) || beeRoot.isMember(remaining, EnumBeeType.QUEEN)) {
-                if (getQueen().isEmpty()) {
-                    setQueen(remaining);
-                    return true;
-                }
-            } else if (beeRoot.isMember(remaining, EnumBeeType.DRONE)) {
-                if (getDrone().isEmpty()) {
-                    setDrone(remaining);
-                    return true;
-                }
-                ItemStack mergeResult = importItems.insertItem(1, remaining, false);
-                if (mergeResult.isEmpty()) {
-                    return true;
-                }
-                remaining = mergeResult;
-            }
-        }
-
-        // Try to add to output slots using insertItem (properly triggers onContentsChanged)
-        for (int i = 0; i < exportItems.getSlots(); i++) {
-            remaining = exportItems.insertItem(i, remaining, false);
-            if (remaining.isEmpty()) {
-                return true;
-            }
-        }
-
-        return remaining.isEmpty();
+        return BeeProductHelper.addProduct(product, getLogic().getBeeRoot(), modifiers,
+                autoBreeding, this, importItems, exportItems);
     }
 
     // ---- Accessors ----
@@ -539,11 +397,18 @@ public class MetaTileEntityIndustrialApiary extends GTBMSimpleMachineMetaTileEnt
         return upgradeInventory;
     }
 
-    public IItemHandlerModifiable getExportItems() {
-        return exportItems;
-    }
-
     public ApiaryModifiers getModifiers() {
         return modifiers;
+    }
+
+    public boolean isAutoBreeding() {
+        return autoBreeding;
+    }
+
+    public void setAutoBreeding(boolean autoBreeding) {
+        this.autoBreeding = autoBreeding;
+        if (autoBreeding && getQueen().isEmpty()) {
+            getLogic().tryMovePrincess();
+        }
     }
 }

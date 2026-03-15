@@ -1,5 +1,7 @@
 package com.github.gtexpert.gtbm.api.gui;
 
+import net.minecraft.util.ResourceLocation;
+
 import gregtech.api.gui.resources.TextureArea;
 
 public class GTBMGuiTextures {
@@ -15,11 +17,15 @@ public class GTBMGuiTextures {
     public static final TextureArea GTBM_LOGO_BLINKING_RED = TextureArea
             .fullImage("textures/gui/icon/gtbm_logo_blinking_red.png");
 
-    // Bee slot overlays
-    public static final TextureArea QUEEN_OVERLAY = TextureArea
-            .fullImage("textures/gui/overlay/queen_overlay.png");
-    public static final TextureArea DRONE_OVERLAY = TextureArea
-            .fullImage("textures/gui/overlay/drone_overlay.png");
-    public static final TextureArea UPGRADE_OVERLAY = TextureArea
-            .fullImage("textures/gui/overlay/upgrade_overlay.png");
+    // Bee status icon (from JEI)
+    public static final TextureArea BEE_INFO_ICON = new TextureArea(
+            new ResourceLocation("jei", "textures/gui/icons/info.png"), 0, 0, 1, 1);
+
+    // Bee slot overlays (directly from Gendustry's hint icons)
+    public static final TextureArea QUEEN_OVERLAY = new TextureArea(
+            new ResourceLocation("gendustry", "textures/items/hints/queen.png"), 0, 0, 1, 1);
+    public static final TextureArea DRONE_OVERLAY = new TextureArea(
+            new ResourceLocation("gendustry", "textures/items/hints/drone.png"), 0, 0, 1, 1);
+    public static final TextureArea UPGRADE_OVERLAY = new TextureArea(
+            new ResourceLocation("gendustry", "textures/items/hints/upgrade.png"), 0, 0, 1, 1);
 }

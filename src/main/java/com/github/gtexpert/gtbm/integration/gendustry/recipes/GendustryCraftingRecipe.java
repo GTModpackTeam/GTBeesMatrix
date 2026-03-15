@@ -23,16 +23,7 @@ public class GendustryCraftingRecipe {
 
     public static void recipeRemoval() {
         Map<Supplier<Boolean>, String> recipes = new HashMap<>();
-        recipes.put(() -> GendustryConfigHolder.MutagenProducer, "mutagen_producer");
-        recipes.put(() -> GendustryConfigHolder.Mutatron, "mutatron");
         recipes.put(() -> GendustryConfigHolder.IndustrialApiary, "industrial_apiary");
-        recipes.put(() -> GendustryConfigHolder.GeneticImprinter, "genetic_imprinter");
-        recipes.put(() -> GendustryConfigHolder.GeneticSampler, "sampler");
-        recipes.put(() -> GendustryConfigHolder.AdvancedMutagen, "mutatron_advanced");
-        recipes.put(() -> GendustryConfigHolder.ProteinLiquifier, "protein_liquifier");
-        recipes.put(() -> GendustryConfigHolder.DNAExtractor, "dna_extractor");
-        recipes.put(() -> GendustryConfigHolder.GeneticTransposer, "transposer");
-        recipes.put(() -> GendustryConfigHolder.GeneticReplicator, "replicator");
 
         recipes.forEach((config, name) -> {
             if (config.get()) {

@@ -11,15 +11,6 @@ import com.github.gtexpert.gtbm.module.Modules;
         category = "Gendustry")
 public class GendustryConfigHolder {
 
-    @Config.Comment({ "If true, each will be uncraftable.", "default: false" })
-    public static boolean MutagenProducer = false,
-            Mutatron = false,
-            IndustrialApiary = false,
-            GeneticImprinter = false,
-            GeneticSampler = false,
-            AdvancedMutagen = false,
-            ProteinLiquifier = false,
-            DNAExtractor = false,
-            GeneticTransposer = false,
-            GeneticReplicator = false;
+    @Config.Comment({ "If true, each will be uncraftable.", "default: true" })
+    public static boolean IndustrialApiary = true;
 }
