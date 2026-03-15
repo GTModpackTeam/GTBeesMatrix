@@ -39,23 +39,25 @@ public class MegaApiaryProvider implements IProbeInfoProvider {
                 MetaTileEntity metaTileEntity = ((IGregTechTileEntity) tileEntity).getMetaTileEntity();
                 if (metaTileEntity instanceof MetaTileEntityMegaApiary &&
                         ((MetaTileEntityMegaApiary) metaTileEntity).isStructureFormed()) {
-                    // Progress Bar
-                    int currentProgress = ((MetaTileEntityMegaApiary) metaTileEntity).getProgressTicks();
-                    int maxProgress = 100;
                     String text = null;
                     if (metaTileEntity.isActive()) {
-                        currentProgress = Math.round(currentProgress / 20.0F);
-                        maxProgress = Math.round(maxProgress / 20.0F);
-                        text = " / " + TextFormattingUtil.formatNumbers(maxProgress) + " s";
-                    }
-                    if (maxProgress > 0) {
-                        int color = ((MetaTileEntityMegaApiary) metaTileEntity).isWorkingEnabled() ? 0xFF4CBB17 :
-                                0xFFBB1C28;
-                        probeInfo.progress(currentProgress, maxProgress, probeInfo.defaultProgressStyle()
-                                .suffix(text)
-                                .filledColor(color)
-                                .alternateFilledColor(color)
-                                .borderColor(0xFF555555).numberFormat(NumberFormat.COMMAS));
+                        // Progress Bar
+                        int currentProgress = ((MetaTileEntityMegaApiary) metaTileEntity).getProgressTicks();
+                        int maxProgress = 100;
+                        if (metaTileEntity.isActive()) {
+                            currentProgress = Math.round(currentProgress / 20.0F);
+                            maxProgress = Math.round(maxProgress / 20.0F);
+                            text = " / " + TextFormattingUtil.formatNumbers(maxProgress) + " s";
+                        }
+                        if (maxProgress > 0) {
+                            int color = ((MetaTileEntityMegaApiary) metaTileEntity).isWorkingEnabled() ? 0xFF4CBB17 :
+                                    0xFFBB1C28;
+                            probeInfo.progress(currentProgress, maxProgress, probeInfo.defaultProgressStyle()
+                                    .suffix(text)
+                                    .filledColor(color)
+                                    .alternateFilledColor(color)
+                                    .borderColor(0xFF555555).numberFormat(NumberFormat.COMMAS));
+                        }
                     }
                     // Energy
                     long EUt = ((MetaTileEntityMegaApiary) metaTileEntity).getCurrentConsumption();
@@ -78,7 +80,6 @@ public class MegaApiaryProvider implements IProbeInfoProvider {
                                     TextStyleClass.INFO + displayName + ": " + TextFormatting.GOLD + "x" + count);
                         }
                     }
-
                 }
             }
         }
