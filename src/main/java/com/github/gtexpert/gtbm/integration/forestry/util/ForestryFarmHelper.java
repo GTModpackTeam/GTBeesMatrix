@@ -21,6 +21,7 @@ public class ForestryFarmHelper {
     public static IFarmProperties registerFarmType(String farmId,
                                                    BiFunction<IFarmProperties, Boolean, IFarmLogic> logicFactory,
                                                    EnumElectronTube tube) {
+        if (ForestryAPI.farmRegistry == null) return null;
         IFarmProperties farm = ForestryAPI.farmRegistry.registerLogic(farmId, logicFactory);
         farm.registerSoil(new ItemStack(Blocks.DIRT),
                 Block.getBlockFromItem(Mods.Forestry.getItem("humus").getItem()).getDefaultState());

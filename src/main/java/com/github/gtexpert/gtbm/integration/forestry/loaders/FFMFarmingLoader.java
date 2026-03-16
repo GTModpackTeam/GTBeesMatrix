@@ -18,6 +18,7 @@ public class FFMFarmingLoader {
 
     public static void init() {
         IFarmRegistry farmRegistry = ForestryAPI.farmRegistry;
+        if (farmRegistry == null) return;
 
         // GregTech Rubber tree farm
         IFarmProperties ceuFarm = ForestryFarmHelper.registerFarmType("farmCEu", FarmLogicCEu::new,
