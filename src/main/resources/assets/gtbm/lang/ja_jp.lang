@@ -65,3 +65,7 @@ gtbm.multiblock.mega_apiary.outputs=%s: §6x%s
 
 # TOP
 gtbm.top.mega_apiary.queen=女王:
+gtbm.top.industrial_apiary.species=種:
+gtbm.top.industrial_apiary.species.unknown=不明な種
+gtbm.top.industrial_apiary.production=生産速度:
+gtbm.top.industrial_apiary.lifespan=寿命:
