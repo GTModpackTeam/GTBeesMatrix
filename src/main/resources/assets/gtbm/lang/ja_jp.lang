@@ -39,3 +39,29 @@ gtbm.farm.gtfo=果樹農園
 # GUI
 gtbm.gui.auto_breeding.tooltip.enabled=自動交配: ON/nクイーン死亡後にプリンセスを自動的に入力スロットに戻します
 gtbm.gui.auto_breeding.tooltip.disabled=自動交配: OFF/nプリンセスはアウトプットに残ります
+
+# Multiblock Display
+gtbm.multiblock.progress=進捗: %s / %s (%s%%)
+gtbm.multiblock.progress_sec=%s 秒
+
+# Mega Apiary
+gtbm.machine.mega_apiary.name=メガ養蜂箱
+gtbm.multiblock.mega_apiary.tooltip.1=ミツバチの理想郷
+gtbm.multiblock.mega_apiary.tooltip.2=処理時間: 5 秒
+gtbm.multiblock.mega_apiary.tooltip.3=女王1匹につき§dLuV§e 1 Amp§7を消費する
+gtbm.multiblock.mega_apiary.tooltip.4=生産アップグレードが8つ適応される
+gtbm.multiblock.mega_apiary.tooltip.5=遺伝的安定化装置のアップグレードが適応されている
+gtbm.multiblock.mega_apiary.tooltip.6=ミツバチにとって理想的な環境を再現する
+gtbm.multiblock.mega_apiary.tooltip.7.1===Ctrlで出力ボーナスの情報を表示==
+gtbm.multiblock.mega_apiary.tooltip.7.2=さらに、生産量を増やすためにローヤルゼリーを与えることができる。
+gtbm.multiblock.mega_apiary.tooltip.8=  - 1つのローヤルゼリーにつき、蜂1匹あたり5%%のボーナスが得られる
+gtbm.multiblock.mega_apiary.tooltip.9=  - 処理開始時点で消費され、その処理でのみ適用される。
+gtbm.multiblock.mega_apiary.tooltip.10=  - 最大ボーナス: 200%%
+gtbm.multiblock.mega_apiary.tooltip.11=§e注意§7: §a自動建造§7を用いた場合、 §b水源§7は設置されません。
+gtbm.multiblock.mega_apiary.queens=女王: %s
+gtbm.multiblock.mega_apiary.jerry_body=ローヤルゼリー: %s
+gtbm.multiblock.mega_apiary.jerry_hover=女王1匹につき、生産量がローヤルゼリー1個ごとに5%%増加する (最大 +200%%)。
+gtbm.multiblock.mega_apiary.outputs=%s: §6x%s
+
+# TOP
+gtbm.top.mega_apiary.queen=女王:

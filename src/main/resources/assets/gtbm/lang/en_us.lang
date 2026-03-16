@@ -39,3 +39,29 @@ gtbm.farm.gtfo=Fruit Farm
 # GUI
 gtbm.gui.auto_breeding.tooltip.enabled=Auto-Breeding: ON/nAutomatically puts the princess back after queen death
 gtbm.gui.auto_breeding.tooltip.disabled=Auto-Breeding: OFF/nPrincess will remain in the output slot
+
+# Multiblock Display
+gtbm.multiblock.progress=Progress: %s / %s (%s%%)
+gtbm.multiblock.progress_sec=%s s
+
+# Mega Apiary
+gtbm.machine.mega_apiary.name=Mega Apiary
+gtbm.multiblock.mega_apiary.tooltip.1=The ideal home for your bees
+gtbm.multiblock.mega_apiary.tooltip.2=Processing time: 5 seconds
+gtbm.multiblock.mega_apiary.tooltip.3=Uses §dLuV§e 1 Amp§7 per queen
+gtbm.multiblock.mega_apiary.tooltip.4=8 production upgrades are applied
+gtbm.multiblock.mega_apiary.tooltip.5=Genetic Stabilizer upgrade applied
+gtbm.multiblock.mega_apiary.tooltip.6=Simulates perfect environment for your bees
+gtbm.multiblock.mega_apiary.tooltip.7.1===Hold Ctrl to show the output bonus information==
+gtbm.multiblock.mega_apiary.tooltip.7.2=Additionally you can provide royal jelly to increase the outputs:
+gtbm.multiblock.mega_apiary.tooltip.8=  - 1 royal jelly grants 5%% bonus per bee
+gtbm.multiblock.mega_apiary.tooltip.9=  - They will be consumed on each start of operation and be applied to that operation only
+gtbm.multiblock.mega_apiary.tooltip.10=  - Max bonus: 200%%
+gtbm.multiblock.mega_apiary.tooltip.11=§eNote§7: When using §aauto-build§7, §bwater source§7 will not be placed.
+gtbm.multiblock.mega_apiary.queens=Queens: %s
+gtbm.multiblock.mega_apiary.jerry_body=Royal Jerry: %s
+gtbm.multiblock.mega_apiary.jerry_hover=Each Queen increases production by 5%% per Royal Jelly, up to a maximum of +200%%.
+gtbm.multiblock.mega_apiary.outputs=%s: §6x%s
+
+# TOP
+gtbm.top.mega_apiary.queen=Queen:
