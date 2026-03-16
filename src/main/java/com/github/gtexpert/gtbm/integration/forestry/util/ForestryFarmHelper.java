@@ -18,6 +18,7 @@ import forestry.farming.circuits.CircuitFarmLogic;
 
 public class ForestryFarmHelper {
 
+    @javax.annotation.Nullable
     public static IFarmProperties registerFarmType(String farmId,
                                                    BiFunction<IFarmProperties, Boolean, IFarmLogic> logicFactory,
                                                    EnumElectronTube tube) {
