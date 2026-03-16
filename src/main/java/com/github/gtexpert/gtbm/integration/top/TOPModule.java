@@ -7,6 +7,7 @@ import com.github.gtexpert.gtbm.api.modules.TModule;
 import com.github.gtexpert.gtbm.api.util.Mods;
 import com.github.gtexpert.gtbm.integration.GTBMIntegrationSubmodule;
 import com.github.gtexpert.gtbm.integration.forestry.util.BeeHousingInfoProvider;
+import com.github.gtexpert.gtbm.integration.top.provider.IndustrialApiaryProvider;
 import com.github.gtexpert.gtbm.integration.top.provider.MegaApiaryProvider;
 import com.github.gtexpert.gtbm.module.Modules;
 
@@ -28,6 +29,7 @@ public class TOPModule extends GTBMIntegrationSubmodule {
             oneProbe.registerProvider(new BeeHousingInfoProvider());
         }
         if (Mods.Gendustry.isModLoaded()) {
+            oneProbe.registerProvider(new IndustrialApiaryProvider());
             oneProbe.registerProvider(new MegaApiaryProvider());
         }
     }

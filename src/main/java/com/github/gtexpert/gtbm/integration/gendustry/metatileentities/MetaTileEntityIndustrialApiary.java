@@ -465,7 +465,7 @@ public class MetaTileEntityIndustrialApiary extends GTBMSimpleMachineMetaTileEnt
 
     // ---- Accessors ----
 
-    protected IndustrialApiaryLogic getLogic() {
+    public IndustrialApiaryLogic getLogic() {
         return (IndustrialApiaryLogic) workable;
     }
 

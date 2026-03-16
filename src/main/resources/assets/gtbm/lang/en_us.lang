@@ -65,3 +65,7 @@ gtbm.multiblock.mega_apiary.outputs=%s: §6x%s
 
 # TOP
 gtbm.top.mega_apiary.queen=Queen:
+gtbm.top.industrial_apiary.species=Species:
+gtbm.top.industrial_apiary.species.unknown=Unknown Species
+gtbm.top.industrial_apiary.production=Production:
+gtbm.top.industrial_apiary.lifespan=Lifespan:
