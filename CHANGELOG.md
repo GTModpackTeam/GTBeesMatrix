@@ -1,3 +1,9 @@
+# v1.4.1
+- Update TOP Integration [#17](https://github.com/GTModpackTeam/GTBeesMatrix/pull/17) 
+- Fix farming NPE [#18](https://github.com/GTModpackTeam/GTBeesMatrix/pull/18)
+
+* * *
+
 # v1.4.0
 - Add Mega Apiary [#14](https://github.com/GTModpackTeam/GTBeesMatrix/pull/14)
   - Please report any unusual behavior. However, please note the flowing:
