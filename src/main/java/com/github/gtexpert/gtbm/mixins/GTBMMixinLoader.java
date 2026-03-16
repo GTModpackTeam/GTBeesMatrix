@@ -19,9 +19,8 @@ import zone.rong.mixinbooter.ILateMixinLoader;
 public class GTBMMixinLoader implements ILateMixinLoader {
 
     public static final Map<String, Boolean> modMixinsConfig = new ImmutableMap.Builder<String, Boolean>()
-            .put(Mods.Names.GREGTECH, true)
-            .put(Mods.Names.GREGICALITY_MULTIBLOCKS, true)
             .put(Mods.Names.FORESTRY, true)
+            .put(Mods.Names.GREGICALITY_MULTIBLOCKS, true)
             .build();
 
     @SuppressWarnings("SimplifyStreamApiCallChains")

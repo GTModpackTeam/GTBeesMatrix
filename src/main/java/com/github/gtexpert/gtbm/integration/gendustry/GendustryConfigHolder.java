@@ -13,4 +13,18 @@ public class GendustryConfigHolder {
 
     @Config.Comment({ "If true, each will be uncraftable.", "default: true" })
     public static boolean industrialApiary = true;
+
+    @Config.Comment("MetaTileEntity ID settings")
+    public static MetaTileEntityIds metaTileEntityIds = new MetaTileEntityIds();
+
+    public static class MetaTileEntityIds {
+
+        @Config.Comment({ "Starting ID for Industrial Apiary (uses 12 consecutive IDs).", "default: 20000" })
+        @Config.RangeInt(min = 1, max = 32767)
+        public int industrialApiaryStartId = 20000;
+
+        @Config.Comment({ "ID for Mega Apiary.", "default: 20500" })
+        @Config.RangeInt(min = 1, max = 32767)
+        public int megaApiaryId = 20500;
+    }
 }

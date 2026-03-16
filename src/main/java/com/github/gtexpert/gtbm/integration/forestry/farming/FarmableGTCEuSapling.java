@@ -12,14 +12,13 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 import forestry.api.farming.ICrop;
 import forestry.api.farming.IFarmable;
 import forestry.api.farming.IFarmableInfo;
-import forestry.core.network.packets.PacketFXSignal;
-import forestry.core.utils.NetworkUtil;
 import forestry.farming.logic.crops.CropDestroy;
 
 public class FarmableGTCEuSapling implements IFarmable {
@@ -79,10 +78,8 @@ public class FarmableGTCEuSapling implements IFarmable {
             EnumActionResult result = copy.onItemUse(player, world, pos.down(),
                     EnumHand.MAIN_HAND, EnumFacing.UP, 0, 0, 0);
             if (result == EnumActionResult.SUCCESS) {
-                PacketFXSignal packet = new PacketFXSignal(
-                        PacketFXSignal.SoundFXType.BLOCK_PLACE, pos,
-                        Blocks.SAPLING.getDefaultState());
-                NetworkUtil.sendNetworkPacket(packet, pos, world);
+                world.playSound(null, pos, Blocks.SAPLING.getSoundType().getPlaceSound(),
+                        SoundCategory.BLOCKS, 1.0F, 1.0F);
                 return true;
             }
             return false;
