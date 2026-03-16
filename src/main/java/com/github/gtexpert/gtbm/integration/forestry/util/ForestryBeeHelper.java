@@ -1,13 +1,19 @@
 package com.github.gtexpert.gtbm.integration.forestry.util;
 
+import forestry.apiculture.ModuleApiculture;
+
 /**
  * Utilities for Forestry bee work cycle timing and display.
  */
 public class ForestryBeeHelper {
 
-    /** Get ticks per bee work cycle from Forestry config. Default 550. */
+    /**
+     * Returns ticks per bee work cycle from Forestry's config.
+     * Uses {@link ModuleApiculture#ticksPerBeeWorkCycle} (default 550,
+     * configured via "beekeeping.ticks.work" in forestry's config).
+     */
     public static int getTicksPerWorkCycle() {
-        return forestry.apiculture.ModuleApiculture.ticksPerBeeWorkCycle;
+        return ModuleApiculture.ticksPerBeeWorkCycle;
     }
 
     /** Effective ticks per health point, accounting for lifespan modifier. */

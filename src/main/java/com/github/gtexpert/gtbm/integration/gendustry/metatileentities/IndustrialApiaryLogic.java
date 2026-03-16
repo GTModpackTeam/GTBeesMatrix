@@ -1,11 +1,13 @@
 package com.github.gtexpert.gtbm.integration.gendustry.metatileentities;
 
+import java.util.Collections;
 import java.util.function.Supplier;
 
 import net.bdew.gendustry.api.ApiaryModifiers;
 import net.bdew.gendustry.api.items.IApiaryUpgrade;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.NonNullList;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -19,15 +21,32 @@ import com.github.gtexpert.gtbm.integration.forestry.util.ForestryBeeHelper;
 import forestry.api.apiculture.*;
 import forestry.core.errors.EnumErrorCode;
 
+/**
+ * Custom work logic for the Industrial Apiary that bridges GregTech's
+ * {@link RecipeLogicEnergy} with Forestry's {@link IBeekeepingLogic}.
+ *
+ * <p>
+ * Instead of using GT recipe matching, this logic delegates bee work
+ * to Forestry's beekeeping system while consuming EU for power.
+ * </p>
+ */
 public class IndustrialApiaryLogic extends RecipeLogicEnergy {
 
     private static final int BASE_EU_PER_TICK = 80;
+    /** Interval (ticks) between health-change checks for progress resync. */
     private static final int PROGRESS_SYNC_TICKS = 20;
+    /** Duration (ticks) for princess breeding. */
     private static final int BREEDING_TIME_TICKS = 100;
 
     private IBeeRoot beeRoot;
     private IBeekeepingLogic beekeepingLogic;
     private boolean needsMovePrincess;
+    /**
+     * Set when {@link #beekeepingLogic} is first created on the server.
+     * Forces a client sync on the next tick so the client receives queen
+     * genome data that was missed by {@code writeInitialSyncData()}.
+     */
+    private boolean needsInitialSync;
     private int lastSyncedHealth = -1;
     private int progressSyncCounter;
     private int fxTickCounter;
@@ -37,10 +56,13 @@ public class IndustrialApiaryLogic extends RecipeLogicEnergy {
         super(metaTileEntity, recipeMap, energyContainer);
     }
 
+    // ---- Accessors ----
+
     private MetaTileEntityIndustrialApiary getApiary() {
         return (MetaTileEntityIndustrialApiary) metaTileEntity;
     }
 
+    /** Returns the cached {@link IBeeRoot}, lazily fetched from {@link BeeManager}. */
     public IBeeRoot getBeeRoot() {
         if (beeRoot == null) {
             beeRoot = BeeManager.beeRoot;
@@ -48,23 +70,77 @@ public class IndustrialApiaryLogic extends RecipeLogicEnergy {
         return beeRoot;
     }
 
+    public IBeekeepingLogic getBeekeepingLogic() {
+        return beekeepingLogic;
+    }
+
+    /**
+     * Returns the EU/t consumption, scaled by the Gendustry energy modifier.
+     *
+     * @return at least 1 EU/t
+     */
+    public int getEUPerTick() {
+        ApiaryModifiers mods = getApiary().getModifiers();
+        float energyMod = (mods != null) ? mods.energy : 1.0F;
+        return Math.max(1, Math.round(BASE_EU_PER_TICK * energyMod));
+    }
+
+    /**
+     * Returns the number of ticks per queen health point, adjusted by the
+     * lifespan modifier from installed upgrades.
+     */
+    public int getEffectiveTicksPerHealth() {
+        ApiaryModifiers mods = getApiary().getModifiers();
+        float lifespanMod = (mods != null) ? mods.lifespan : 1.0F;
+        return ForestryBeeHelper.getEffectiveTicksPerHealth(lifespanMod);
+    }
+
+    /** Returns the current tick offset within the current health-point cycle. */
+    public int getCycleTickCounter() {
+        if (maxProgressTime <= 0) return 0;
+        int effectiveTicks = getEffectiveTicksPerHealth();
+        return effectiveTicks > 0 ? (progressTime % effectiveTicks) : 0;
+    }
+
+    /** Returns the normalized bee work progress (0.0 to 1.0). */
+    public float getBeeProgress() {
+        if (maxProgressTime <= 0) return 0;
+        return (float) progressTime / maxProgressTime;
+    }
+
+    // ---- Initialization ----
+
+    /**
+     * Lazily creates the {@link IBeekeepingLogic} once the world is available.
+     * On the server side, sets {@link #needsInitialSync} so that the first
+     * {@link #updateServer()} call will sync queen data to the client.
+     */
     private void initBeekeepingLogic() {
         if (beekeepingLogic == null && metaTileEntity.getWorld() != null) {
             IBeeRoot root = getBeeRoot();
             if (root != null) {
                 beekeepingLogic = root.createBeekeepingLogic(getApiary());
+                if (!metaTileEntity.getWorld().isRemote) {
+                    needsInitialSync = true;
+                }
             }
         }
     }
 
+    /**
+     * Called from the client-side network handler to ensure the beekeeping
+     * logic exists before reading sync data.
+     */
     public void initBeekeepingLogicClient() {
         initBeekeepingLogic();
     }
 
-    public IBeekeepingLogic getBeekeepingLogic() {
-        return beekeepingLogic;
-    }
+    // ---- Modifier management ----
 
+    /**
+     * Resets all {@link ApiaryModifiers} to defaults, then applies each
+     * installed {@link IApiaryUpgrade} from the upgrade inventory.
+     */
     public void updateModifiers() {
         MetaTileEntityIndustrialApiary apiary = getApiary();
         ApiaryModifiers mods = apiary.getModifiers();
@@ -73,6 +149,7 @@ public class IndustrialApiaryLogic extends RecipeLogicEnergy {
         var upgradeInventory = apiary.getUpgradeInventory();
         if (upgradeInventory == null) return;
 
+        // Reset to defaults
         mods.territory = 1;
         mods.mutation = 1;
         mods.lifespan = 1;
@@ -89,6 +166,7 @@ public class IndustrialApiaryLogic extends RecipeLogicEnergy {
         mods.isCollectingPollen = false;
         mods.biomeOverride = null;
 
+        // Apply installed upgrades
         for (int i = 0; i < upgradeInventory.getSlots(); i++) {
             ItemStack stack = upgradeInventory.getStackInSlot(i);
             if (!stack.isEmpty() && stack.getItem() instanceof IApiaryUpgrade) {
@@ -97,23 +175,7 @@ public class IndustrialApiaryLogic extends RecipeLogicEnergy {
         }
     }
 
-    public int getEUPerTick() {
-        ApiaryModifiers mods = getApiary().getModifiers();
-        float energyMod = (mods != null) ? mods.energy : 1.0F;
-        return Math.max(1, Math.round(BASE_EU_PER_TICK * energyMod));
-    }
-
-    public int getEffectiveTicksPerHealth() {
-        ApiaryModifiers mods = getApiary().getModifiers();
-        float lifespanMod = (mods != null) ? mods.lifespan : 1.0F;
-        return ForestryBeeHelper.getEffectiveTicksPerHealth(lifespanMod);
-    }
-
-    public int getCycleTickCounter() {
-        if (maxProgressTime <= 0) return 0;
-        int effectiveTicks = getEffectiveTicksPerHealth();
-        return effectiveTicks > 0 ? (progressTime % effectiveTicks) : 0;
-    }
+    // ---- Tick updates ----
 
     @Override
     public void update() {
@@ -129,19 +191,31 @@ public class IndustrialApiaryLogic extends RecipeLogicEnergy {
         updateServer();
     }
 
+    /**
+     * Client-side tick: applies any buffered bee logic data that arrived
+     * before the logic was initialized, then renders bee particle FX.
+     */
     private void updateClient() {
         if (wasActiveAndNeedsUpdate) {
             wasActiveAndNeedsUpdate = false;
             setActive(false);
         }
-        if (beekeepingLogic != null && isActive) {
-            fxTickCounter++;
-            if (fxTickCounter % 2 == 0 && beekeepingLogic.canDoBeeFX()) {
-                beekeepingLogic.doBeeFX();
+        if (beekeepingLogic != null) {
+            getApiary().applyPendingBeeLogicData();
+            if (isActive) {
+                fxTickCounter++;
+                if (fxTickCounter % 2 == 0 && beekeepingLogic.canDoBeeFX()) {
+                    beekeepingLogic.doBeeFX();
+                }
             }
         }
     }
 
+    /**
+     * Server-side tick: updates modifiers, delegates to Forestry's
+     * {@link IBeekeepingLogic#canWork()}/{@link IBeekeepingLogic#doWork()},
+     * draws energy, and syncs bee state to clients when needed.
+     */
     private void updateServer() {
         if (beekeepingLogic == null) {
             if (isActive) setActive(false);
@@ -156,7 +230,8 @@ public class IndustrialApiaryLogic extends RecipeLogicEnergy {
         int euPerTick = getEUPerTick();
         boolean hasPower = getEnergyStored() >= euPerTick;
 
-        // canWork() clears errorLogic internally, so power error must be set AFTER
+        // canWork() populates BeekeepingLogic.queenStack from the inventory
+        // and clears errorLogic internally, so power error must be set AFTER
         boolean canWork = beekeepingLogic.canWork();
         apiary.getErrorLogic().setCondition(!hasPower, EnumErrorCode.NO_POWER);
 
@@ -180,7 +255,11 @@ public class IndustrialApiaryLogic extends RecipeLogicEnergy {
             movePrincessToQueenSlot();
         }
 
-        if (isActive != isWorking) {
+        // Sync AFTER canWork() so BeekeepingLogic.queenStack has genome data.
+        // needsInitialSync covers chunk-reload where isActive == isWorking (both true)
+        // and the normal state-change check would not trigger a sync.
+        if (needsInitialSync || isActive != isWorking) {
+            needsInitialSync = false;
             setActive(isWorking);
             apiary.syncBeeLogicToClient();
         }
@@ -192,12 +271,17 @@ public class IndustrialApiaryLogic extends RecipeLogicEnergy {
         updateProgress(isWorking, apiary);
     }
 
+    // ---- Progress tracking ----
+
+    /**
+     * Tracks bee work progress and triggers re-syncs when a health point
+     * is consumed or Forestry's probabilistic aging changes the queen's health.
+     */
     private void updateProgress(boolean isWorking, MetaTileEntityIndustrialApiary apiary) {
         if (isWorking && !apiary.getQueen().isEmpty()) {
+            // Health point consumed — reset for next cycle
             if (maxProgressTime > 0 && progressTime >= maxProgressTime) {
-                progressTime = 0;
-                maxProgressTime = 0;
-                lastSyncedHealth = -1;
+                resetProgress();
                 apiary.syncBeeLogicToClient();
             }
             if (maxProgressTime <= 0) {
@@ -214,13 +298,22 @@ public class IndustrialApiaryLogic extends RecipeLogicEnergy {
                 progressTime++;
             }
         } else {
-            progressTime = 0;
-            maxProgressTime = 0;
-            lastSyncedHealth = -1;
+            resetProgress();
             progressSyncCounter = 0;
         }
     }
 
+    private void resetProgress() {
+        progressTime = 0;
+        maxProgressTime = 0;
+        lastSyncedHealth = -1;
+    }
+
+    /**
+     * Initializes progress tracking from the current queen or princess.
+     * For queens, uses the effective ticks-per-health; for princesses,
+     * uses a fixed breeding duration.
+     */
     private void syncProgressFromBee(MetaTileEntityIndustrialApiary apiary) {
         IBeeRoot root = getBeeRoot();
         if (root == null) return;
@@ -240,7 +333,10 @@ public class IndustrialApiaryLogic extends RecipeLogicEnergy {
         }
     }
 
-    /** Resync progress when Forestry's probabilistic aging changes health. */
+    /**
+     * Detects when Forestry's probabilistic aging causes a health change
+     * that wasn't tracked by our tick-based progress, and resyncs.
+     */
     private void resyncIfHealthChanged(MetaTileEntityIndustrialApiary apiary) {
         IBeeRoot root = getBeeRoot();
         if (root == null || lastSyncedHealth < 0) return;
@@ -256,15 +352,17 @@ public class IndustrialApiaryLogic extends RecipeLogicEnergy {
         }
     }
 
-    public float getBeeProgress() {
-        if (maxProgressTime <= 0) return 0;
-        return (float) progressTime / maxProgressTime;
-    }
+    // ---- Auto-breeding ----
 
+    /** Flags that the queen died and a princess should be moved next tick. */
     public void setNeedsMovePrincess() {
         needsMovePrincess = true;
     }
 
+    /**
+     * Searches the output inventory for a princess and moves it to the
+     * queen slot for auto-breeding.
+     */
     public void movePrincessToQueenSlot() {
         IBeeRoot root = getBeeRoot();
         if (root == null) return;
@@ -280,20 +378,28 @@ public class IndustrialApiaryLogic extends RecipeLogicEnergy {
         }
     }
 
+    // ---- Recipe overrides (unused — bee work replaces GT recipe system) ----
+
     @Override
     protected void trySearchNewRecipe() {}
 
     @Override
     protected void updateRecipeProgress() {}
 
-    /** Ensure itemOutputs/fluidOutputs are non-null for parent serialization. */
+    // ---- Serialization ----
+
+    /**
+     * Persists bee logic state alongside the parent's NBT.
+     * Guards against null collections that the parent may not initialize
+     * when no GT recipes have run.
+     */
     @Override
     public NBTTagCompound serializeNBT() {
         if (itemOutputs == null) {
-            itemOutputs = net.minecraft.util.NonNullList.create();
+            itemOutputs = NonNullList.create();
         }
         if (fluidOutputs == null) {
-            fluidOutputs = java.util.Collections.emptyList();
+            fluidOutputs = Collections.emptyList();
         }
         recipeEUt = getEUPerTick();
 

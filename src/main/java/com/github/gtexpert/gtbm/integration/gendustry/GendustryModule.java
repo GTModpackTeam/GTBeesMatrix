@@ -18,7 +18,7 @@ import com.github.gtexpert.gtbm.module.Modules;
          moduleID = Modules.MODULE_GENDUSTRY,
          containerID = ModValues.MODID,
          modDependencies = { Mods.Names.FORESTRY, Mods.Names.GENDUSTRY },
-         name = "GTBeesMatrix Gendustry For Minecraft Integration",
+         name = "GTBeesMatrix Gendustry Integration",
          description = "Gendustry Integration Module")
 public class GendustryModule extends GTBMIntegrationSubmodule {
 

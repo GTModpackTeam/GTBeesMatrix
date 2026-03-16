@@ -6,6 +6,7 @@ import static gregtech.common.metatileentities.MetaTileEntities.registerMetaTile
 import static gregtech.common.metatileentities.MetaTileEntities.registerMetaTileEntity;
 
 import com.github.gtexpert.gtbm.client.GTBMTextures;
+import com.github.gtexpert.gtbm.integration.gendustry.GendustryConfigHolder;
 import com.github.gtexpert.gtbm.integration.gendustry.GendustryRecipeMaps;
 import com.github.gtexpert.gtbm.integration.gendustry.metatileentities.multiblock.MetaTileEntityMegaApiary;
 
@@ -17,19 +18,16 @@ public class GendustryMetaTileEntities {
     public static MetaTileEntityMegaApiary MEGA_APIARY;
 
     public static void init() {
-        // INDUSTRIAL_APIARY 20000~20012
-        // TODO: IDの変更
+        GendustryConfigHolder.MetaTileEntityIds ids = GendustryConfigHolder.metaTileEntityIds;
 
-        registerMetaTileEntities(INDUSTRIAL_APIARY, 20000, "industrial_apiary",
+        registerMetaTileEntities(INDUSTRIAL_APIARY, ids.industrialApiaryStartId, "industrial_apiary",
                 (tier, voltageName) -> new MetaTileEntityIndustrialApiary(
                         gtbm(String.format("%s.%s", "industrial_apiary", voltageName)),
                         GendustryRecipeMaps.INDUSTRIAL_APIARY_RECIPES,
                         GTBMTextures.INDUSTRIAL_APIARY_OVERLAY,
                         tier, false, null));
 
-        // Multiblock
-        // Mega Apiary 20500
-        MEGA_APIARY = registerMetaTileEntity(20500, new MetaTileEntityMegaApiary(
+        MEGA_APIARY = registerMetaTileEntity(ids.megaApiaryId, new MetaTileEntityMegaApiary(
                 gtbm("mega_apiary")));
     }
 }

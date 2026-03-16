@@ -17,7 +17,7 @@ public class GTBMGuiTextures {
     public static final TextureArea GTBM_LOGO_BLINKING_RED = TextureArea
             .fullImage("textures/gui/icon/gtbm_logo_blinking_red.png");
 
-    // Bee status icon (from JEI)
+    // Bee status icon (directly from JEI's hint icons)
     public static final TextureArea BEE_INFO_ICON = new TextureArea(
             new ResourceLocation("jei", "textures/gui/icons/info.png"), 0, 0, 1, 1);
 

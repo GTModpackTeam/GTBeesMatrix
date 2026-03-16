@@ -82,6 +82,7 @@ public class MetaTileEntityIndustrialApiary extends GTBMSimpleMachineMetaTileEnt
     private IItemHandlerModifiable upgradeInventory;
     private GameProfile owner;
     private boolean autoBreeding = false;
+    private byte[] pendingBeeLogicData;
 
     public MetaTileEntityIndustrialApiary(ResourceLocation metaTileEntityId, RecipeMap<?> recipeMap,
                                           ICubeRenderer renderer, int tier, boolean hasFrontFacing,
@@ -433,10 +434,33 @@ public class MetaTileEntityIndustrialApiary extends GTBMSimpleMachineMetaTileEnt
         try {
             if (logic != null) {
                 logic.readData(buf);
+                pendingBeeLogicData = null;
             } else {
-                buf.readBytes(buf.readableBytes());
+                // Buffer the data for later application when the logic becomes available
+                byte[] data = new byte[buf.readableBytes()];
+                buf.readBytes(data);
+                pendingBeeLogicData = data;
             }
-        } catch (java.io.IOException ignored) {}
+        } catch (java.io.IOException e) {
+            com.github.gtexpert.gtbm.api.util.ModLog.logger.error("Failed to read bee logic sync data", e);
+        }
+    }
+
+    /** Applies buffered bee logic data that arrived before the logic was initialized on the client. */
+    public void applyPendingBeeLogicData() {
+        if (pendingBeeLogicData != null) {
+            IBeekeepingLogic logic = getBeekeepingLogic();
+            if (logic != null) {
+                try {
+                    logic.readData(new net.minecraft.network.PacketBuffer(
+                            io.netty.buffer.Unpooled.wrappedBuffer(pendingBeeLogicData)));
+                } catch (java.io.IOException e) {
+                    com.github.gtexpert.gtbm.api.util.ModLog.logger.error(
+                            "Failed to apply pending bee logic data", e);
+                }
+                pendingBeeLogicData = null;
+            }
+        }
     }
 
     // ---- Accessors ----
