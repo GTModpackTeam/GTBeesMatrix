@@ -3,6 +3,7 @@
   - Please report any unusual behavior. However, please note the flowing:
     - Text in the GUI is overflowing
     - The controller overlays are not syncing
+- Enhanced FFM Integration and Detailed Refactoring [#16](https://github.com/GTModpackTeam/GTBeesMatrix/pull/16)
 
 * * *
 
