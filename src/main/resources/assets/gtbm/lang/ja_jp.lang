@@ -37,8 +37,8 @@ gtbm.farm.ceu=ゴムの木農園
 gtbm.farm.gtfo=果樹農園
 
 # GUI
-gtbm.gui.auto_breeding.tooltip.enabled=自動交配: ON/nクイーン死亡後にプリンセスを自動的に入力スロットに戻します
-gtbm.gui.auto_breeding.tooltip.disabled=自動交配: OFF/nプリンセスはアウトプットに残ります
+gtbm.gui.auto_breeding.tooltip.enabled=自動交配を有効化 (現在は無効)/nクイーン死亡後にプリンセスを自動的に入力スロットに戻します
+gtbm.gui.auto_breeding.tooltip.disabled=自動交配を無効化 (現在は有効)/nプリンセスはアウトプットに残ります
 
 # Multiblock Display
 gtbm.multiblock.progress=進捗: %s / %s (%s%%)

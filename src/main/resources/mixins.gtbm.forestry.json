@@ -5,7 +5,9 @@
   "minVersion": "0.8",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
-    "FlowerRegistryAccessor"
+    "FlowerRegistryAccessor",
+    "FluidsMixin",
+    "ModuleFluidsMixin"
   ],
   "client": [
     "ItemBeeGEMixin",

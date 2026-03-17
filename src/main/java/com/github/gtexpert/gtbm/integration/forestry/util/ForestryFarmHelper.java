@@ -24,6 +24,7 @@ public class ForestryFarmHelper {
                                                    EnumElectronTube tube) {
         if (ForestryAPI.farmRegistry == null) return null;
         IFarmProperties farm = ForestryAPI.farmRegistry.registerLogic(farmId, logicFactory);
+        if (farm == null) return null;
         farm.registerSoil(new ItemStack(Blocks.DIRT),
                 Block.getBlockFromItem(Mods.Forestry.getItem("humus").getItem()).getDefaultState());
 

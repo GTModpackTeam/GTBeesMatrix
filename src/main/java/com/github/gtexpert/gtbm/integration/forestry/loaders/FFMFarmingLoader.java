@@ -24,11 +24,13 @@ public class FFMFarmingLoader {
         IFarmProperties ceuFarm = ForestryFarmHelper.registerFarmType("farmCEu", FarmLogicCEu::new,
                 EnumElectronTube.TIN);
 
-        String rubberId = "farmCEu.rubber";
-        ceuFarm.registerFarmables(rubberId);
-        farmRegistry.registerFarmables(rubberId,
-                new FarmableGTCEuSapling(MetaBlocks.RUBBER_SAPLING,
-                        new ItemStack[] { MetaItems.STICKY_RESIN.getStackForm() }));
+        if (ceuFarm != null) {
+            String rubberId = "farmCEu.rubber";
+            ceuFarm.registerFarmables(rubberId);
+            farmRegistry.registerFarmables(rubberId,
+                    new FarmableGTCEuSapling(MetaBlocks.RUBBER_SAPLING,
+                            new ItemStack[] { MetaItems.STICKY_RESIN.getStackForm() }));
+        }
 
         // GregTech Fertilizer
         farmRegistry.registerFertilizer(MetaItems.FERTILIZER.getStackForm(), 500);
