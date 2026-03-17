@@ -1,3 +1,10 @@
+# v1.4.2
+- Add Mixins to skip Forestry fluid registration and redirect to GregTech fluids.
+- Align Industrial Apiary logic with Gendustry spec
+- Delegate owner persistence to Forestry's OwnerHandler with legacy NBT migration
+
+* * *
+
 # v1.4.1
 - Update TOP Integration [#17](https://github.com/GTModpackTeam/GTBeesMatrix/pull/17) 
 - Fix farming NPE [#18](https://github.com/GTModpackTeam/GTBeesMatrix/pull/18)

@@ -371,7 +371,7 @@ public class IndustrialApiaryLogic extends RecipeLogicEnergy {
         for (int i = 0; i < output.getSlots(); i++) {
             ItemStack stack = output.getStackInSlot(i);
             if (!stack.isEmpty() && root.isMember(stack, EnumBeeType.PRINCESS)) {
-                apiary.setQueen(stack);
+                apiary.setQueen(stack.copy());
                 output.setStackInSlot(i, ItemStack.EMPTY);
                 return;
             }

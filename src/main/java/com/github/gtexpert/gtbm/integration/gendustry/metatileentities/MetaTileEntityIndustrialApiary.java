@@ -11,6 +11,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
@@ -42,6 +43,7 @@ import forestry.api.apiculture.*;
 import forestry.api.core.*;
 import forestry.api.genetics.IIndividual;
 import forestry.core.errors.ErrorLogic;
+import forestry.core.owner.OwnerHandler;
 
 public class MetaTileEntityIndustrialApiary extends GTBMSimpleMachineMetaTileEntity
                                             implements IBeeHousing, IBeeHousingInventory {
@@ -76,11 +78,12 @@ public class MetaTileEntityIndustrialApiary extends GTBMSimpleMachineMetaTileEnt
             if (!modifiers.isCollectingPollen) return false;
             ItemStack stack = pollen.getGenome().getSpeciesRoot()
                     .getMemberStack(pollen, forestry.api.arboriculture.EnumGermlingType.POLLEN);
-            return addProduct(stack, true);
+            addProduct(stack, true);
+            return true;
         }
     };
+    private final OwnerHandler ownerHandler = new OwnerHandler();
     private IItemHandlerModifiable upgradeInventory;
-    private GameProfile owner;
     private boolean autoBreeding = false;
     private byte[] pendingBeeLogicData;
 
@@ -165,6 +168,12 @@ public class MetaTileEntityIndustrialApiary extends GTBMSimpleMachineMetaTileEnt
         return upgrade.getMaxNumber(stack) - existing;
     }
 
+    @Override
+    public void clearMachineInventory(NonNullList<ItemStack> itemBuffer) {
+        super.clearMachineInventory(itemBuffer);
+        clearInventory(itemBuffer, upgradeInventory);
+    }
+
     // ---- NBT ----
 
     @Override
@@ -179,12 +188,7 @@ public class MetaTileEntityIndustrialApiary extends GTBMSimpleMachineMetaTileEnt
         }
         data.setTag("UpgradeInventory", upgradeTag);
 
-        if (owner != null) {
-            NBTTagCompound ownerTag = new NBTTagCompound();
-            ownerTag.setString("Name", owner.getName());
-            ownerTag.setString("UUID", owner.getId().toString());
-            data.setTag("Owner", ownerTag);
-        }
+        ownerHandler.writeToNBT(data);
 
         data.setBoolean("AutoBreeding", autoBreeding);
         return data;
@@ -202,12 +206,16 @@ public class MetaTileEntityIndustrialApiary extends GTBMSimpleMachineMetaTileEnt
                 }
             }
         }
-        if (data.hasKey("Owner")) {
-            NBTTagCompound ownerTag = data.getCompoundTag("Owner");
-            owner = new GameProfile(
-                    java.util.UUID.fromString(ownerTag.getString("UUID")),
-                    ownerTag.getString("Name"));
+        // Migrate legacy "Owner" tag to Forestry's "owner" format
+        if (data.hasKey("Owner") && !data.hasKey("owner")) {
+            NBTTagCompound legacyTag = data.getCompoundTag("Owner");
+            NBTTagCompound converted = new NBTTagCompound();
+            converted.setString("Name", legacyTag.getString("Name"));
+            converted.setString("Id", legacyTag.getString("UUID"));
+            data.setTag("owner", converted);
+            data.removeTag("Owner");
         }
+        ownerHandler.readFromNBT(data);
         if (data.hasKey("AutoBreeding")) {
             autoBreeding = data.getBoolean("AutoBreeding");
         }
@@ -217,8 +225,8 @@ public class MetaTileEntityIndustrialApiary extends GTBMSimpleMachineMetaTileEnt
 
     @Override
     protected ModularUI createUI(EntityPlayer player) {
-        if (owner == null) {
-            owner = player.getGameProfile();
+        if (ownerHandler.getOwner() == null) {
+            ownerHandler.setOwner(player.getGameProfile());
         }
         IBeekeepingLogic logic = getBeekeepingLogic();
         if (logic != null && !getWorld().isRemote) {
@@ -322,7 +330,7 @@ public class MetaTileEntityIndustrialApiary extends GTBMSimpleMachineMetaTileEnt
     @Override
     @Nullable
     public GameProfile getOwner() {
-        return owner;
+        return ownerHandler.getOwner();
     }
 
     @Override

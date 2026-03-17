@@ -53,12 +53,7 @@ public class IndustrialApiaryProvider implements IProbeInfoProvider {
                 if (bee != null) {
                     EnumBeeType type = beeRoot.getType(queenStack);
                     if (type == EnumBeeType.QUEEN || type == EnumBeeType.PRINCESS) {
-                        String speciesName;
-                        if (bee.isAnalyzed()) {
-                            speciesName = bee.getGenome().getPrimary().getAlleleName();
-                        } else {
-                            speciesName = "{*gtbm.top.industrial_apiary.species.unknown*}";
-                        }
+                        String speciesName = bee.getGenome().getPrimary().getAlleleName();
                         probeInfo.text(
                                 TextStyleClass.INFO + "{*gtbm.top.industrial_apiary.species*} " + speciesName);
                     }

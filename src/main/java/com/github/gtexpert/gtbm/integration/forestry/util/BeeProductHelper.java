@@ -42,7 +42,7 @@ public class BeeProductHelper {
                     return true;
                 }
             }
-            if ((autoBreeding || isAutomated) && beeRoot.isMember(remaining, EnumBeeType.DRONE)) {
+            if (isAutomated && beeRoot.isMember(remaining, EnumBeeType.DRONE)) {
                 if (beeInv.getDrone().isEmpty()) {
                     beeInv.setDrone(remaining);
                     return true;
