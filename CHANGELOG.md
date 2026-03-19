@@ -1,3 +1,12 @@
+# v1.4.3
+- Fix external automation inserting non-bee items into bee slots
+- Fix drone not returning to bee slot when Automation Upgrade is inserted while stopped
+- Fix upgrade changes not applied immediately when apiary is stopped
+- Fix bee tooltip not showing flower names for crop flowers
+- Fix BeekeepingLogic state (breeding progress, pending offspring) lost on world reload
+
+* * *
+
 # v1.4.2
 - Add Mixins to skip Forestry fluid registration and redirect to GregTech fluids.
 - Align Industrial Apiary logic with Gendustry spec

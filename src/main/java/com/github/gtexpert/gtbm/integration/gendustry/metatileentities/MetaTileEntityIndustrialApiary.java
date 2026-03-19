@@ -1,5 +1,6 @@
 package com.github.gtexpert.gtbm.integration.gendustry.metatileentities;
 
+import java.io.IOException;
 import java.util.Collections;
 import java.util.function.Function;
 
@@ -10,6 +11,7 @@ import net.bdew.gendustry.api.items.IApiaryUpgrade;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
@@ -18,6 +20,8 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 import net.minecraftforge.items.IItemHandlerModifiable;
+
+import org.jetbrains.annotations.NotNull;
 
 import com.mojang.authlib.GameProfile;
 
@@ -33,6 +37,7 @@ import gregtech.api.recipes.RecipeMap;
 import gregtech.client.renderer.ICubeRenderer;
 
 import com.github.gtexpert.gtbm.api.gui.GTBMGuiTextures;
+import com.github.gtexpert.gtbm.api.util.ModLog;
 import com.github.gtexpert.gtbm.common.metatileentities.GTBMSimpleMachineMetaTileEntity;
 import com.github.gtexpert.gtbm.integration.forestry.util.BeeProductHelper;
 import com.github.gtexpert.gtbm.integration.gendustry.util.ApiaryModifierBridge;
@@ -44,6 +49,7 @@ import forestry.api.core.*;
 import forestry.api.genetics.IIndividual;
 import forestry.core.errors.ErrorLogic;
 import forestry.core.owner.OwnerHandler;
+import io.netty.buffer.Unpooled;
 
 public class MetaTileEntityIndustrialApiary extends GTBMSimpleMachineMetaTileEntity
                                             implements IBeeHousing, IBeeHousingInventory {
@@ -84,7 +90,7 @@ public class MetaTileEntityIndustrialApiary extends GTBMSimpleMachineMetaTileEnt
     };
     private final OwnerHandler ownerHandler = new OwnerHandler();
     private IItemHandlerModifiable upgradeInventory;
-    private boolean autoBreeding = false;
+    private boolean autoBreeding;
     private byte[] pendingBeeLogicData;
 
     public MetaTileEntityIndustrialApiary(ResourceLocation metaTileEntityId, RecipeMap<?> recipeMap,
@@ -111,7 +117,7 @@ public class MetaTileEntityIndustrialApiary extends GTBMSimpleMachineMetaTileEnt
         return new NotifiableItemStackHandler(this, 2, this, false) {
 
             @Override
-            public boolean isItemValid(int slot, @org.jetbrains.annotations.NotNull ItemStack stack) {
+            public boolean isItemValid(int slot, @NotNull ItemStack stack) {
                 IBeeRoot beeRoot = getLogic().getBeeRoot();
                 if (beeRoot == null) return true;
                 if (slot == 0) {
@@ -121,6 +127,13 @@ public class MetaTileEntityIndustrialApiary extends GTBMSimpleMachineMetaTileEnt
                     return beeRoot.isMember(stack, EnumBeeType.DRONE);
                 }
                 return false;
+            }
+
+            @Override
+            @NotNull
+            public ItemStack insertItem(int slot, @NotNull ItemStack stack, boolean simulate) {
+                if (!isItemValid(slot, stack)) return stack;
+                return super.insertItem(slot, stack, simulate);
             }
         };
     }
@@ -140,7 +153,7 @@ public class MetaTileEntityIndustrialApiary extends GTBMSimpleMachineMetaTileEnt
         this.upgradeInventory = new NotifiableItemStackHandler(this, getUpgradeSlotCount(), this, false) {
 
             @Override
-            public boolean isItemValid(int slot, @org.jetbrains.annotations.NotNull ItemStack stack) {
+            public boolean isItemValid(int slot, @NotNull ItemStack stack) {
                 if (stack.isEmpty() || !(stack.getItem() instanceof IApiaryUpgrade)) return false;
                 return getMaxAdditionalUpgrades(stack) >= stack.getCount();
             }
@@ -187,9 +200,7 @@ public class MetaTileEntityIndustrialApiary extends GTBMSimpleMachineMetaTileEnt
             }
         }
         data.setTag("UpgradeInventory", upgradeTag);
-
         ownerHandler.writeToNBT(data);
-
         data.setBoolean("AutoBreeding", autoBreeding);
         return data;
     }
@@ -206,7 +217,6 @@ public class MetaTileEntityIndustrialApiary extends GTBMSimpleMachineMetaTileEnt
                 }
             }
         }
-        // Migrate legacy "Owner" tag to Forestry's "owner" format
         if (data.hasKey("Owner") && !data.hasKey("owner")) {
             NBTTagCompound legacyTag = data.getCompoundTag("Owner");
             NBTTagCompound converted = new NBTTagCompound();
@@ -395,10 +405,10 @@ public class MetaTileEntityIndustrialApiary extends GTBMSimpleMachineMetaTileEnt
     @Override
     public boolean addProduct(ItemStack product, boolean all) {
         return BeeProductHelper.addProduct(product, getLogic().getBeeRoot(),
-                autoBreeding, modifiers.isAutomated, this, importItems, exportItems);
+                modifiers.isAutomated, this, importItems, exportItems);
     }
 
-    // ---- Bee FX sync ----
+    // ---- Bee logic sync ----
 
     public void syncBeeLogicToClient() {
         IBeekeepingLogic logic = getBeekeepingLogic();
@@ -408,7 +418,7 @@ public class MetaTileEntityIndustrialApiary extends GTBMSimpleMachineMetaTileEnt
     }
 
     @Override
-    public void writeInitialSyncData(@org.jetbrains.annotations.NotNull net.minecraft.network.PacketBuffer buf) {
+    public void writeInitialSyncData(@NotNull PacketBuffer buf) {
         super.writeInitialSyncData(buf);
         IBeekeepingLogic logic = getBeekeepingLogic();
         if (logic != null) {
@@ -420,7 +430,7 @@ public class MetaTileEntityIndustrialApiary extends GTBMSimpleMachineMetaTileEnt
     }
 
     @Override
-    public void receiveInitialSyncData(@org.jetbrains.annotations.NotNull net.minecraft.network.PacketBuffer buf) {
+    public void receiveInitialSyncData(@NotNull PacketBuffer buf) {
         super.receiveInitialSyncData(buf);
         if (buf.readBoolean()) {
             readBeeLogicData(buf);
@@ -428,15 +438,14 @@ public class MetaTileEntityIndustrialApiary extends GTBMSimpleMachineMetaTileEnt
     }
 
     @Override
-    public void receiveCustomData(int dataId,
-                                  @org.jetbrains.annotations.NotNull net.minecraft.network.PacketBuffer buf) {
+    public void receiveCustomData(int dataId, @NotNull PacketBuffer buf) {
         super.receiveCustomData(dataId, buf);
         if (dataId == BEE_LOGIC_SYNC_ID) {
             readBeeLogicData(buf);
         }
     }
 
-    private void readBeeLogicData(net.minecraft.network.PacketBuffer buf) {
+    private void readBeeLogicData(PacketBuffer buf) {
         getLogic().initBeekeepingLogicClient();
         IBeekeepingLogic logic = getBeekeepingLogic();
         try {
@@ -444,31 +453,25 @@ public class MetaTileEntityIndustrialApiary extends GTBMSimpleMachineMetaTileEnt
                 logic.readData(buf);
                 pendingBeeLogicData = null;
             } else {
-                // Buffer the data for later application when the logic becomes available
                 byte[] data = new byte[buf.readableBytes()];
                 buf.readBytes(data);
                 pendingBeeLogicData = data;
             }
-        } catch (java.io.IOException e) {
-            com.github.gtexpert.gtbm.api.util.ModLog.logger.error("Failed to read bee logic sync data", e);
+        } catch (IOException e) {
+            ModLog.logger.error("Failed to read bee logic sync data", e);
         }
     }
 
-    /** Applies buffered bee logic data that arrived before the logic was initialized on the client. */
     public void applyPendingBeeLogicData() {
-        if (pendingBeeLogicData != null) {
-            IBeekeepingLogic logic = getBeekeepingLogic();
-            if (logic != null) {
-                try {
-                    logic.readData(new net.minecraft.network.PacketBuffer(
-                            io.netty.buffer.Unpooled.wrappedBuffer(pendingBeeLogicData)));
-                } catch (java.io.IOException e) {
-                    com.github.gtexpert.gtbm.api.util.ModLog.logger.error(
-                            "Failed to apply pending bee logic data", e);
-                }
-                pendingBeeLogicData = null;
-            }
+        if (pendingBeeLogicData == null) return;
+        IBeekeepingLogic logic = getBeekeepingLogic();
+        if (logic == null) return;
+        try {
+            logic.readData(new PacketBuffer(Unpooled.wrappedBuffer(pendingBeeLogicData)));
+        } catch (IOException e) {
+            ModLog.logger.error("Failed to apply pending bee logic data", e);
         }
+        pendingBeeLogicData = null;
     }
 
     // ---- Accessors ----

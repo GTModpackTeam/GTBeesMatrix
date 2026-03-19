@@ -60,13 +60,11 @@ dependencies {
 
     // Debug Forestry
     implementation rfg.deobf("curse.maven:forestry-59751:5903382") // Forestry 5.8.2.387
-    implementation rfg.deobf("curse.maven:beebetteratbees-244516:2627215") // BeeBetterAtBees 2.0.3
-    implementation rfg.deobf("curse.maven:jei-bees-248370:2490058") // JEIBees 0.9.0.5
+    runtimeOnly rfg.deobf("curse.maven:jei-bees-248370:2490058") // JEIBees 0.9.0.5
 
     // Debug Gendustry
     compileOnly rfg.deobf("curse.maven:bdlib-70496:2518031") // BdLib 1.14.3.12
     compileOnly rfg.deobf("curse.maven:gendustry-70492:2516215") // Gendustry 1.6.5.8
-    compileOnly rfg.deobf("curse.maven:gendustry-jei-addon-301364:2609434") // Gendustry JEI Addon 1.0.2
     if (project.debug_all.toBoolean() || project.debug_gendustry.toBoolean()) {
         runtimeOnly rfg.deobf("curse.maven:bdlib-70496:2518031") // BdLib 1.14.3.12
         runtimeOnly rfg.deobf("curse.maven:gendustry-70492:2516215") // Gendustry 1.6.5.8

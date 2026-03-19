@@ -69,31 +69,39 @@ public class ItemBeeGEMixin {
         try {
             FlowerRegistryAccessor registry = (FlowerRegistryAccessor) FlowerManager.flowerRegistry;
 
-            // Blocks registered for any state
             HashMultimap<String, Block> acceptableBlocks = registry.gtbm$getAcceptableBlocks();
             for (Block block : acceptableBlocks.get(flowerType)) {
-                if (block == Blocks.AIR) continue;
-                ItemStack stack = new ItemStack(block);
-                if (!stack.isEmpty()) {
-                    names.add(stack.getDisplayName());
-                }
+                String name = getBlockDisplayName(block);
+                if (name != null) names.add(name);
             }
 
-            // Specific block states
             Map<String, BlockStateSet> acceptableStates = registry.gtbm$getAcceptableBlockStates();
             BlockStateSet stateSet = acceptableStates.get(flowerType);
             if (stateSet != null) {
                 for (IBlockState state : stateSet) {
-                    Block block = state.getBlock();
-                    if (block == Blocks.AIR) continue;
-                    int meta = block.getMetaFromState(state);
-                    ItemStack stack = new ItemStack(block, 1, meta);
-                    if (!stack.isEmpty()) {
-                        names.add(stack.getDisplayName());
-                    }
+                    String name = getStateDisplayName(state);
+                    if (name != null) names.add(name);
                 }
             }
         } catch (Exception ignored) {}
         return names;
+    }
+
+    @Nullable
+    private static String getBlockDisplayName(Block block) {
+        if (block == Blocks.AIR) return null;
+        ItemStack stack = new ItemStack(block);
+        if (!stack.isEmpty()) return stack.getDisplayName();
+        return block.getLocalizedName();
+    }
+
+    @Nullable
+    private static String getStateDisplayName(IBlockState state) {
+        Block block = state.getBlock();
+        if (block == Blocks.AIR) return null;
+        int meta = block.getMetaFromState(state);
+        ItemStack stack = new ItemStack(block, 1, meta);
+        if (!stack.isEmpty()) return stack.getDisplayName();
+        return block.getLocalizedName();
     }
 }

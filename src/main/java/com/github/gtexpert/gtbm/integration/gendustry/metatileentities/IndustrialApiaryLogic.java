@@ -40,6 +40,7 @@ public class IndustrialApiaryLogic extends RecipeLogicEnergy {
 
     private IBeeRoot beeRoot;
     private IBeekeepingLogic beekeepingLogic;
+    private NBTTagCompound pendingBeeLogicNBT;
     private boolean needsMovePrincess;
     /**
      * Set when {@link #beekeepingLogic} is first created on the server.
@@ -120,6 +121,10 @@ public class IndustrialApiaryLogic extends RecipeLogicEnergy {
             IBeeRoot root = getBeeRoot();
             if (root != null) {
                 beekeepingLogic = root.createBeekeepingLogic(getApiary());
+                if (pendingBeeLogicNBT != null) {
+                    beekeepingLogic.readFromNBT(pendingBeeLogicNBT);
+                    pendingBeeLogicNBT = null;
+                }
                 if (!metaTileEntity.getWorld().isRemote) {
                     needsInitialSync = true;
                 }
@@ -217,6 +222,8 @@ public class IndustrialApiaryLogic extends RecipeLogicEnergy {
      * draws energy, and syncs bee state to clients when needed.
      */
     private void updateServer() {
+        updateModifiers();
+
         if (beekeepingLogic == null) {
             if (isActive) setActive(false);
             return;
@@ -224,8 +231,6 @@ public class IndustrialApiaryLogic extends RecipeLogicEnergy {
 
         MetaTileEntityIndustrialApiary apiary = getApiary();
         needsMovePrincess = false;
-
-        updateModifiers();
 
         int euPerTick = getEUPerTick();
         boolean hasPower = getEnergyStored() >= euPerTick;
@@ -253,6 +258,9 @@ public class IndustrialApiaryLogic extends RecipeLogicEnergy {
 
         if (needsMovePrincess && apiary.getQueen().isEmpty()) {
             movePrincessToQueenSlot();
+        }
+        if (apiary.getModifiers().isAutomated) {
+            moveBeesFromOutput(apiary);
         }
 
         // Sync AFTER canWork() so BeekeepingLogic.queenStack has genome data.
@@ -378,6 +386,27 @@ public class IndustrialApiaryLogic extends RecipeLogicEnergy {
         }
     }
 
+    /**
+     * Scans the output inventory for bee members and moves them into
+     * the appropriate bee slots when the Automation Upgrade is active.
+     */
+    private void moveBeesFromOutput(MetaTileEntityIndustrialApiary apiary) {
+        IBeeRoot root = getBeeRoot();
+        if (root == null) return;
+        var output = getOutputInventory();
+        for (int i = 0; i < output.getSlots(); i++) {
+            ItemStack stack = output.getStackInSlot(i);
+            if (stack.isEmpty() || !root.isMember(stack)) continue;
+            if (root.isMember(stack, EnumBeeType.PRINCESS) && apiary.getQueen().isEmpty()) {
+                apiary.setQueen(stack.copy());
+                output.setStackInSlot(i, ItemStack.EMPTY);
+            } else if (root.isMember(stack, EnumBeeType.DRONE) && apiary.getDrone().isEmpty()) {
+                apiary.setDrone(stack.copy());
+                output.setStackInSlot(i, ItemStack.EMPTY);
+            }
+        }
+    }
+
     // ---- Recipe overrides (unused — bee work replaces GT recipe system) ----
 
     @Override
@@ -416,10 +445,8 @@ public class IndustrialApiaryLogic extends RecipeLogicEnergy {
     public void deserializeNBT(@NotNull NBTTagCompound compound) {
         super.deserializeNBT(compound);
         if (compound.hasKey("BeekeepingLogic")) {
+            pendingBeeLogicNBT = compound.getCompoundTag("BeekeepingLogic");
             initBeekeepingLogic();
-            if (beekeepingLogic != null) {
-                beekeepingLogic.readFromNBT(compound.getCompoundTag("BeekeepingLogic"));
-            }
         }
     }
 }

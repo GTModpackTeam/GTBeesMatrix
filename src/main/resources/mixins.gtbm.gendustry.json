@@ -1,0 +1,12 @@
+{
+  "package": "com.github.gtexpert.gtbm.mixins.gendustry",
+  "refmap": "mixins.gtbm.refmap.json",
+  "target": "@env(DEFAULT)",
+  "minVersion": "0.8",
+  "compatibilityLevel": "JAVA_8",
+  "mixins": [
+    "TileApiaryMixin"
+  ],
+  "client": [],
+  "server": []
+}

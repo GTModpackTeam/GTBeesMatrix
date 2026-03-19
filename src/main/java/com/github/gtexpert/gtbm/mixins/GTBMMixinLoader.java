@@ -20,6 +20,7 @@ public class GTBMMixinLoader implements ILateMixinLoader {
 
     public static final Map<String, Boolean> modMixinsConfig = new ImmutableMap.Builder<String, Boolean>()
             .put(Mods.Names.FORESTRY, true)
+            .put(Mods.Names.GENDUSTRY, true)
             .put(Mods.Names.GREGICALITY_MULTIBLOCKS, true)
             .build();
 

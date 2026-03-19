@@ -8,41 +8,34 @@ import forestry.api.apiculture.IBeeHousingInventory;
 import forestry.api.apiculture.IBeeRoot;
 
 /**
- * Reusable product distribution logic for bee housings.
- * Handles automated bee re-insertion and output slot management.
+ * Product distribution logic for bee housings backed by GT item handlers.
  */
 public class BeeProductHelper {
 
     /**
-     * Add a bee product to the housing's inventory.
-     * If automated, attempts to re-insert bees into queen/drone slots first.
+     * Distributes a bee product into the housing's inventory.
      *
-     * @param product      the product to add
-     * @param beeRoot      the bee root (nullable, skips automation if null)
-     * @param autoBreeding whether auto-breeding is enabled (princess auto-insertion)
-     * @param isAutomated  whether automation upgrade is active (drone auto-insertion)
-     * @param beeInv       the bee housing inventory (queen/drone access)
-     * @param importItems  the import item handler (for drone merging)
-     * @param exportItems  the export item handler (output slots)
-     * @return true if the product was fully inserted
+     * <p>
+     * When the Automation Upgrade is active, bee members are re-inserted
+     * into bee slots (princess → queen, drone → drone / merge).
+     * Everything else goes to the export (output) slots.
      */
     public static boolean addProduct(ItemStack product, IBeeRoot beeRoot,
-                                     boolean autoBreeding, boolean isAutomated,
+                                     boolean isAutomated,
                                      IBeeHousingInventory beeInv,
                                      IItemHandlerModifiable importItems, IItemHandlerModifiable exportItems) {
         if (product.isEmpty()) return true;
 
         ItemStack remaining = product.copy();
 
-        if (beeRoot != null && beeRoot.isMember(remaining)) {
-            if (autoBreeding && (beeRoot.isMember(remaining, EnumBeeType.PRINCESS) ||
-                    beeRoot.isMember(remaining, EnumBeeType.QUEEN))) {
+        if (isAutomated && beeRoot != null && beeRoot.isMember(remaining)) {
+            if (beeRoot.isMember(remaining, EnumBeeType.PRINCESS)) {
                 if (beeInv.getQueen().isEmpty()) {
                     beeInv.setQueen(remaining);
                     return true;
                 }
             }
-            if (isAutomated && beeRoot.isMember(remaining, EnumBeeType.DRONE)) {
+            if (beeRoot.isMember(remaining, EnumBeeType.DRONE)) {
                 if (beeInv.getDrone().isEmpty()) {
                     beeInv.setDrone(remaining);
                     return true;
