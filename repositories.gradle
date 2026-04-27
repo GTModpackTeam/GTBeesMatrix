@@ -1,11 +1,4 @@
 // Add any additional repositories for your dependencies here
 
 repositories {
-    maven {
-        name 'GTCEu Maven'
-        url 'https://maven.gtceu.com'
-    }
-    flatDir {
-        dirs 'libs'
-    }
 }
