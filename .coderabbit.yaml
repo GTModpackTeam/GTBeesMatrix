@@ -30,9 +30,10 @@ reviews:
           common/server code paths — this crashes a dedicated server.
 
         Module system:
-        - Modules are annotated `@GTEModule` and discovered via ASM. Check that new
-          modules extend the correct base class and declare `modDependencies`
-          correctly for optional integrations.
+        - Modules are annotated `@GTEModule` and discovered via Forge's `ASMDataTable`
+          annotation scanning (`modules/ModuleManager.java`), not bytecode rewriting.
+          Check that new modules extend the correct base class and declare
+          `modDependencies` correctly for optional integrations.
         - Integration modules under `integration/<mod>/` extend `GTBMIntegrationSubmodule`.
 
         Mixins (`mixins/`, targets: chisel, draconicevolution, gcym, gregtech):
