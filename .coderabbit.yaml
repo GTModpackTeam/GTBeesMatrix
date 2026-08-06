@@ -1,0 +1,49 @@
+knowledge_base:
+  mcp:
+    # "auto" disables MCP for public repositories, so set it explicitly.
+    # This is what allows the DeepWiki MCP server to be used as review context.
+    usage: enabled
+
+reviews:
+  path_instructions:
+    - path: "src/main/java/**/*.java"
+      instructions: |
+        Minecraft 1.12.2 Forge mod (GTBeesMatrix / GTBM), an add-on for
+        GregTech CE: Unofficial (GTCEu, https://github.com/GregTechCEu/GregTech).
+        Also integrates with Forestry, Binnie's Mods (Extra Bees, Extra Trees),
+        Gendustry, GregTech Food Option (GTFO) and The One Probe.
+
+        GTCEu context — use DeepWiki (GregTechCEu/GregTech) to verify:
+        - Confirm GTCEu APIs, registries, recipe builders and multiblock/apiary
+          related classes are used correctly, and that referenced methods/fields
+          actually exist in the pinned GTCEu version.
+        - Flag use of GTCEu internals that are not part of its public API when a
+          public equivalent exists.
+
+        Platform constraints (1.12.2 / Java 8 bytecode):
+        - Do NOT suggest Java APIs or language features unavailable on this platform
+          (e.g. `List.of`, records, switch expressions, text blocks).
+        - Do NOT suggest modern Minecraft/Forge APIs; this is the 1.12.2 Forge line.
+
+        Side boundary:
+        - Flag client-only types or `@SideOnly(Side.CLIENT)` members referenced from
+          common/server code paths — this crashes a dedicated server.
+
+        Module system:
+        - Modules are annotated `@GTEModule` and discovered via ASM. Check that new
+          modules extend the correct base class and declare `modDependencies`
+          correctly for optional integrations.
+        - Integration modules under `integration/<mod>/` extend `GTBMIntegrationSubmodule`.
+
+        Mixins (`mixins/`, targets: chisel, draconicevolution, gcym, gregtech):
+        - Verify the target class, method signature and descriptor plausibly exist in
+          the targeted mod.
+        - Any new mixin must be registered in the matching mixin config.
+
+        Optional integrations:
+        - Optional mod integrations must be gated so a missing optional mod
+          (Gendustry, Binnie's Mods, GTFO, TOP) cannot crash the game.
+
+        Build:
+        - `build.gradle` is auto-generated. Never edit it
+          (configure via `buildscript.properties` / `dependencies.gradle`).
